@@ -1,5 +1,7 @@
 from decimal import Decimal
 
+import enums
+
 
 class System:
     def __init__(self, name: str):
@@ -12,7 +14,13 @@ class Faction:
 
 
 class FactionBranch:
-    def __init__(self, faction: Faction, system: System, is_main: bool = False, influence: Decimal = 0):
+    def __init__(
+        self,
+        faction: Faction,
+        system: System,
+        is_main: bool = False,
+        influence: Decimal = 0,
+    ):
         self.faction = faction
         self.system = system
         self.is_main = is_main
@@ -20,7 +28,15 @@ class FactionBranch:
 
 
 class OrbitalStation:
-    def __init__(self, name, station_type, system, distance_to_arrival, services, controlling_faction):
+    def __init__(
+        self,
+        name: str,
+        station_type: enums.StationType,
+        system: System,
+        distance_to_arrival: int,
+        services: list,
+        controlling_faction: FactionBranch,  # TODO: would it be better to use Faction instead of FactionBranch?
+    ):
         self.name = name
         self.station_type = station_type
         self.system = system
