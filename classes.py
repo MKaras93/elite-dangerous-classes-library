@@ -1,4 +1,5 @@
 from decimal import Decimal
+from typing import Optional
 
 import enums
 
@@ -35,7 +36,9 @@ class OrbitalStation:
         system: System,
         distance_to_arrival: int,
         services: list,
-        controlling_faction: FactionBranch,  # TODO: would it be better to use Faction instead of FactionBranch?
+        controlling_faction: Optional[
+            FactionBranch  # TODO: would it be better to use Faction instead of FactionBranch?
+        ] = None,
     ):
         self.name = name
         self.station_type = station_type
