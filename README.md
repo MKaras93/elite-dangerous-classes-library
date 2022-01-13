@@ -1,0 +1,1 @@
+Library containing classes for Elite Dangerous.
