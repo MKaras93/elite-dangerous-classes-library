@@ -6,3 +6,7 @@ class StationType(Enum):
     OUTPOST = "outpost"
     MEGASHIP = "mega ship"
     PLANETARY_OUTPOST = "planetary outpost"
+
+
+class StationService(Enum):
+    MISSIONS = "Missions"
