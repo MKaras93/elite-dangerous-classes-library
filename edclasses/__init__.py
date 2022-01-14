@@ -1,3 +1,1 @@
-from classes import *
-
-__all__ = classes.__all__
+from .classes import *
