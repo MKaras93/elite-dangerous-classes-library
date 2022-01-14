@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import Optional
+from typing import Optional, List
 
 import enums
 
@@ -21,11 +21,13 @@ class FactionBranch:
         system: System,
         is_main: bool = False,
         influence: Decimal = 0,
+        stations: List[OrbitalStation] = None
     ):
         self.faction = faction
         self.system = system
         self.is_main = is_main
         self.influence = influence
+        self.stations = stations or []
 
 
 class OrbitalStation:
