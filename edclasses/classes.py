@@ -1,16 +1,22 @@
 from decimal import Decimal
 from typing import Optional, List
 
-from . import enums
+from edclasses import enums
 
 class System:
     def __init__(self, name: str):
         self.name = name
 
+    def __str__(self):
+        return f"System '{self.name}'"
+
 
 class Faction:
     def __init__(self, name: str):
         self.name = name
+
+    def __str__(self):
+        return f"Faction '{self.name}'"
 
 
 class FactionBranch:
@@ -28,6 +34,9 @@ class FactionBranch:
         self.influence = influence
         self.stations = stations or []
 
+    def __str__(self):
+        return f"{self.faction} in {self.system}"
+
 
 class OrbitalStation:
     def __init__(
@@ -42,8 +51,11 @@ class OrbitalStation:
         ] = None,
     ):
         self.name = name
-        self.station_type = station_type
+        self.station_type = station_type.value
         self.system = system
         self.distance_to_arrival = distance_to_arrival
         self.services = services
         self.controlling_faction = controlling_faction
+
+    def __str__(self):
+        return f"{self.station_type.title()} '{self.name}'"
