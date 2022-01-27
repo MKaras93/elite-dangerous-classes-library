@@ -1,4 +1,4 @@
-from tests.factories.classes_factories import (
+from edclasses.factories.classes_factories import (
     SystemFactory,
     FactionFactory,
     FactionBranchFactory,
