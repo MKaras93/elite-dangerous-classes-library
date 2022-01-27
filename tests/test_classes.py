@@ -1,4 +1,9 @@
-from tests.factories.classes_factories import SystemFactory, FactionFactory, FactionBranchFactory, OrbitalStationFactory
+from tests.factories.classes_factories import (
+    SystemFactory,
+    FactionFactory,
+    FactionBranchFactory,
+    OrbitalStationFactory,
+)
 
 
 def test_system_factory():

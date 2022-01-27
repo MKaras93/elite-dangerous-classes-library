@@ -3,6 +3,7 @@ from typing import Optional, List
 
 from edclasses import enums
 
+
 class System:
     def __init__(self, name: str):
         self.name = name
@@ -26,7 +27,7 @@ class FactionBranch:
         system: System,
         is_main: bool = False,
         influence: Decimal = 0,
-        stations: List["OrbitalStation"] = None
+        stations: List["OrbitalStation"] = None,
     ):
         self.faction = faction
         self.system = system
