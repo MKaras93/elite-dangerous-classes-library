@@ -45,7 +45,7 @@ class OrbitalStation:
         station_type: enums.StationType,
         system: System,
         distance_to_arrival: int,
-        services: list,
+        services: Optional[List] = None,
         controlling_faction: Optional[
             FactionBranch  # TODO: would it be better to use Faction instead of FactionBranch?
         ] = None,
@@ -54,7 +54,7 @@ class OrbitalStation:
         self.station_type = station_type.value
         self.system = system
         self.distance_to_arrival = distance_to_arrival
-        self.services = services
+        self.services = services or []
         self.controlling_faction = controlling_faction
 
     def __str__(self):
