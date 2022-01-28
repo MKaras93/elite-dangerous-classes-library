@@ -1,4 +1,4 @@
-from edclasses.factories.classes_factories import (
+from .factories.classes_factories import (
     SystemFactory,
     FactionFactory,
     FactionBranchFactory,

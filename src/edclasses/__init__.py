@@ -1,2 +1,2 @@
 from .classes import *
-from .factories import classes_factories
+from .tests.factories import classes_factories as factories
