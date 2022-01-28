@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import Optional, List
 
-from edclasses import enums
+from . import enums
 
 
 class System:

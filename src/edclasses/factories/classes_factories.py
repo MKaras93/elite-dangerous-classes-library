@@ -1,6 +1,6 @@
 import factory
-from edclasses import System, Faction, FactionBranch, OrbitalStation
-from edclasses.enums import StationType
+from ..classes import System, Faction, FactionBranch, OrbitalStation
+from ..enums import StationType
 
 
 class SystemFactory(factory.Factory):
