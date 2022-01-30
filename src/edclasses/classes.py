@@ -5,6 +5,8 @@ from typing import Optional, List
 
 from . import enums
 
+_NEVER_EXPIRE = 0
+
 
 class ExpiringCachedPropertyMixin:
     @staticmethod
@@ -13,7 +15,9 @@ class ExpiringCachedPropertyMixin:
 
     def _get_new_expiration_time(self, lifetime_in_seconds):
         if lifetime_in_seconds:
-            return datetime.datetime.utcnow() + datetime.timedelta(seconds=lifetime_in_seconds)
+            return datetime.datetime.utcnow() + datetime.timedelta(
+                seconds=lifetime_in_seconds
+            )
         else:
             return None
 
@@ -31,7 +35,6 @@ class ExpiringCachedPropertyMixin:
         except KeyError:
             return get_attr(item)
 
-        print("running machinery")
         cache = get_attr("__dict__")
         expiration_key = get_attr("_get_expiration_key")(item)
         expiration_time = cache.get(expiration_key)
@@ -40,9 +43,22 @@ class ExpiringCachedPropertyMixin:
             cache.pop(item, None)
 
         val = super().__getattribute__(item)
-        if not expiration_time or time_expired:
-            cache[expiration_key] = get_attr("_get_new_expiration_time")(lifetime_in_seconds=item_lifetime)
+
+        if expiration_time is None or time_expired:
+            cache[expiration_key] = get_attr("_get_new_expiration_time")(
+                lifetime_in_seconds=item_lifetime
+            )
         return val
+
+    def __setattr__(self, key, value):
+        get_attr = super().__getattribute__
+        registry = get_attr("expiring_properties_registry")
+        __dict__ = get_attr("__dict__")
+        if key in registry:
+            expiration_key = get_attr("_get_expiration_key")(key)
+            __dict__[expiration_key] = _NEVER_EXPIRE
+
+        return super().__setattr__(key, value)
 
 
 class System:
@@ -86,6 +102,7 @@ class FactionBranch(ExpiringCachedPropertyMixin):
     def color(self):
         # TODO: wip property, delete it
         return str(datetime.datetime.now())
+
 
 class OrbitalStation:
     def __init__(
