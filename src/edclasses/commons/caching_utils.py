@@ -1,49 +1,67 @@
 import datetime
-from functools import cached_property
-_NOT_FOUND = object()
+
+_NEVER_EXPIRE = 0
 
 
-class cached_property_ttl(cached_property):
-    def _get_expiration_key(self):
-        return f"{self.attrname}_expiration_time"
+class ExpiringCachedPropertyMixin:
+    def _clear_property(self, item):
+        get_attr = super().__getattribute__
+        registry = get_attr("expiring_properties_registry")
+        if item not in registry:
+            raise ValueError(f"{item} is not a registered property!")  # TODO correct
 
-    def _get_new_expiration_time(self):
-        return datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+        cache = get_attr("__dict__")
+        cache.pop(item, None)
+        expire_key = self._get_expiration_key(item)
+        cache.pop(expire_key, None)
 
-    def __get__(self, instance, owner=None):
-        if instance is None:
-            return self
-        if self.attrname is None:
-            raise TypeError(
-                "Cannot use cached_property instance without calling __set_name__ on it.")
-        try:
-            cache = instance.__dict__
-        except AttributeError:  # not all objects have __dict__ (e.g. class defines slots)
-            msg = (
-                f"No '__dict__' attribute on {type(instance).__name__!r} "
-                f"instance to cache {self.attrname!r} property."
+    @staticmethod
+    def _get_expiration_key(item):
+        return f"{item}_expiration_time"
+
+    def _get_new_expiration_time(self, lifetime_in_seconds):
+        if lifetime_in_seconds:
+            return datetime.datetime.utcnow() + datetime.timedelta(
+                seconds=lifetime_in_seconds
             )
-            raise TypeError(msg) from None
-        expiration_key = self._get_expiration_key()
-        expiration_time = cache.get(expiration_key)
-        if expiration_time and datetime.datetime.utcnow() >= expiration_time:
-            cache.pop(self.attrname)
-            val = _NOT_FOUND
         else:
-            val = cache.get(self.attrname, _NOT_FOUND)
-        if val is _NOT_FOUND:
-            with self.lock:
-                # check if another thread filled cache while we awaited lock
-                val = cache.get(self.attrname, _NOT_FOUND)
-                if val is _NOT_FOUND:
-                    val = self.func(instance)
-                    try:
-                        cache[self.attrname] = val
-                        cache[expiration_key] = self._get_new_expiration_time()
-                    except TypeError:
-                        msg = (
-                            f"The '__dict__' attribute on {type(instance).__name__!r} instance "
-                            f"does not support item assignment for caching {self.attrname!r} property."
-                        )
-                        raise TypeError(msg) from None
+            return None
+
+    @staticmethod
+    def _is_expired(expiration_time):
+        if expiration_time and datetime.datetime.utcnow() >= expiration_time:
+            return True
+        return False
+
+    def __getattribute__(self, item):
+        get_attr = super().__getattribute__
+        registry = get_attr("expiring_properties_registry")
+        try:
+            item_lifetime = registry[item]
+        except KeyError:
+            return get_attr(item)
+
+        cache = get_attr("__dict__")
+        expiration_key = get_attr("_get_expiration_key")(item)
+        expiration_time = cache.get(expiration_key)
+        time_expired = expiration_time and datetime.datetime.utcnow() >= expiration_time
+        if time_expired:
+            cache.pop(item, None)
+
+        val = super().__getattribute__(item)
+
+        if expiration_time is None or time_expired:
+            cache[expiration_key] = get_attr("_get_new_expiration_time")(
+                lifetime_in_seconds=item_lifetime
+            )
         return val
+
+    def __setattr__(self, key, value):
+        get_attr = super().__getattribute__
+        registry = get_attr("expiring_properties_registry")
+        __dict__ = get_attr("__dict__")
+        if key in registry:
+            expiration_key = get_attr("_get_expiration_key")(key)
+            __dict__[expiration_key] = _NEVER_EXPIRE
+
+        return super().__setattr__(key, value)
