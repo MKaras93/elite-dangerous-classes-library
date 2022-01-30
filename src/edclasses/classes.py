@@ -6,6 +6,45 @@ from typing import Optional, List
 from . import enums
 
 
+class ExpiringCachedPropertyMixin:
+    @staticmethod
+    def _get_expiration_key(item):
+        return f"{item}_expiration_time"
+
+    def _get_new_expiration_time(self, lifetime_in_seconds):
+        if lifetime_in_seconds:
+            return datetime.datetime.utcnow() + datetime.timedelta(seconds=lifetime_in_seconds)
+        else:
+            return None
+
+    @staticmethod
+    def _is_expired(expiration_time):
+        if expiration_time and datetime.datetime.utcnow() >= expiration_time:
+            return True
+        return False
+
+    def __getattribute__(self, item):
+        get_attr = super().__getattribute__
+        registry = get_attr("expiring_properties_registry")
+        try:
+            item_lifetime = registry[item]
+        except KeyError:
+            return get_attr(item)
+
+        print("running machinery")
+        cache = get_attr("__dict__")
+        expiration_key = get_attr("_get_expiration_key")(item)
+        expiration_time = cache.get(expiration_key)
+        time_expired = expiration_time and datetime.datetime.utcnow() >= expiration_time
+        if time_expired:
+            cache.pop(item, None)
+
+        val = super().__getattribute__(item)
+        if not expiration_time or time_expired:
+            cache[expiration_key] = get_attr("_get_new_expiration_time")(lifetime_in_seconds=item_lifetime)
+        return val
+
+
 class System:
     def __init__(self, name: str):
         self.name = name
@@ -22,7 +61,10 @@ class Faction:
         return f"Faction '{self.name}'"
 
 
-class FactionBranch:
+class FactionBranch(ExpiringCachedPropertyMixin):
+    # TODO: this should be handled automatically by decorator and metaclass, but not today.
+    expiring_properties_registry = {"color": 5}
+
     def __init__(
         self,
         faction: Faction,
@@ -44,33 +86,6 @@ class FactionBranch:
     def color(self):
         # TODO: wip property, delete it
         return str(datetime.datetime.now())
-
-    @staticmethod
-    def _get_expiration_key(item):
-        return f"{item}_expiration_time"
-
-    def _get_new_expiration_time(self):
-        return datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
-
-    @staticmethod
-    def _is_expired(expiration_time):
-        if expiration_time and datetime.datetime.utcnow() >= expiration_time:
-            return True
-        return False
-
-    def __getattribute__(self, item):
-        get_attr = super().__getattribute__
-        cache = get_attr("__dict__")
-        expiration_key = get_attr("_get_expiration_key")(item)
-        expiration_time = cache.get(expiration_key)
-        time_expired = expiration_time and datetime.datetime.utcnow() >= expiration_time
-        if time_expired:
-            cache.pop(item, None)
-
-        val = super().__getattribute__(item)
-        if not expiration_time or time_expired:
-            cache[expiration_key] = get_attr("_get_new_expiration_time")()
-        return val
 
 class OrbitalStation:
     def __init__(
