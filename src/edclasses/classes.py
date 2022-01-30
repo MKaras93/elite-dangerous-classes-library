@@ -1,4 +1,6 @@
+import datetime
 from decimal import Decimal
+from functools import cached_property
 from typing import Optional, List
 
 from . import enums
@@ -38,6 +40,37 @@ class FactionBranch:
     def __str__(self):
         return f"{self.faction} in {self.system}"
 
+    @cached_property
+    def color(self):
+        # TODO: wip property, delete it
+        return str(datetime.datetime.now())
+
+    @staticmethod
+    def _get_expiration_key(item):
+        return f"{item}_expiration_time"
+
+    def _get_new_expiration_time(self):
+        return datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
+
+    @staticmethod
+    def _is_expired(expiration_time):
+        if expiration_time and datetime.datetime.utcnow() >= expiration_time:
+            return True
+        return False
+
+    def __getattribute__(self, item):
+        get_attr = super().__getattribute__
+        cache = get_attr("__dict__")
+        expiration_key = get_attr("_get_expiration_key")(item)
+        expiration_time = cache.get(expiration_key)
+        time_expired = expiration_time and datetime.datetime.utcnow() >= expiration_time
+        if time_expired:
+            cache.pop(item, None)
+
+        val = super().__getattribute__(item)
+        if not expiration_time or time_expired:
+            cache[expiration_key] = get_attr("_get_new_expiration_time")()
+        return val
 
 class OrbitalStation:
     def __init__(
