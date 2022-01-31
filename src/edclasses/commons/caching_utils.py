@@ -1,4 +1,5 @@
 import datetime
+from typing import Optional, Any
 
 _NEVER_EXPIRE = 0  # TODO: this could be obj()
 
@@ -21,7 +22,7 @@ class ExpiringCachedPropertyMixin:
     If you set None as lifetime_in_seconds, it will never expire.
     You can use self.clear_property(property_name) to manually clear the cache on given attribute
     """
-    def _clear_property(self, item):
+    def _clear_property(self, item: str) -> None:
         get_attr = super().__getattribute__
         try:
             registry = get_attr("expiring_properties_registry")
@@ -37,10 +38,10 @@ class ExpiringCachedPropertyMixin:
         cache.pop(expire_key, None)
 
     @staticmethod
-    def _get_expiration_key(item):
+    def _get_expiration_key(item: str) -> str:
         return f"{item}_expiration_time"
 
-    def _get_new_expiration_time(self, lifetime_in_seconds):
+    def _get_new_expiration_time(self, lifetime_in_seconds: int) -> Optional[datetime.datetime]:
         if lifetime_in_seconds:
             return datetime.datetime.utcnow() + datetime.timedelta(
                 seconds=lifetime_in_seconds # TODO: change to minutes
@@ -49,12 +50,12 @@ class ExpiringCachedPropertyMixin:
             return None
 
     @staticmethod
-    def _is_expired(expiration_time):
+    def _is_expired(expiration_time: [datetime.datetime, int]) -> bool:
         if expiration_time and datetime.datetime.utcnow() >= expiration_time:
             return True
         return False
 
-    def __getattribute__(self, item):
+    def __getattribute__(self, item: str) -> Any:
         get_attr = super().__getattribute__
         try:
             registry = get_attr("expiring_properties_registry")
@@ -82,7 +83,7 @@ class ExpiringCachedPropertyMixin:
             )
         return val
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, key: str, value: Any) -> None:
         get_attr = super().__getattribute__
 
         try:
