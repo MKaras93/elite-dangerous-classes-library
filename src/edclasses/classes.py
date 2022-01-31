@@ -5,6 +5,7 @@ from typing import Optional, List
 
 from . import enums
 from .commons.caching_utils import ExpiringCachedPropertyMixin
+from .api_adapters.elite_bgs_adapter import EliteBgsAdapter
 
 DEFAULT_LIFETIME = 5
 
@@ -26,11 +27,9 @@ class Faction:
 
 
 class FactionBranch(ExpiringCachedPropertyMixin):
+    adapter = EliteBgsAdapter()
     # TODO: this should be handled automatically by decorator and metaclass, but not today.
     expiring_properties_registry = {
-        "faction": DEFAULT_LIFETIME,
-        "system": DEFAULT_LIFETIME,
-        "is_main": DEFAULT_LIFETIME,
         "influence": DEFAULT_LIFETIME,
         "stations": DEFAULT_LIFETIME,
     }
@@ -53,26 +52,12 @@ class FactionBranch(ExpiringCachedPropertyMixin):
         return f"{self.faction} in {self.system}"
 
     @cached_property
-    def faction(self) -> Faction:
-        raise NotImplemented
-
-    @cached_property
-    def system(self) -> System:
-        return System(
-            name=f"Dummy System {random.randint(0,1000)}"
-        )  # TODO: to be replaced
-
-    @cached_property
-    def is_main(self) -> bool:
-        raise NotImplemented
-
-    @cached_property
     def influence(self) -> Decimal:
-        raise NotImplemented
+        return self.adapter.influence(self)
 
     @cached_property
     def stations(self) -> List["OrbitalStation"]:
-        raise NotImplemented
+        return self.adapter.stations(self)
 
 
 class OrbitalStation:
