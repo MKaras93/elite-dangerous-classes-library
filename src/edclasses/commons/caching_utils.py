@@ -22,13 +22,16 @@ class ExpiringCachedPropertyMixin:
     If you set None as lifetime_in_seconds, it will never expire.
     You can use self.clear_property(property_name) to manually clear the cache on given attribute
     """
+
     def _clear_property(self, item: str) -> None:
         get_attr = super().__getattribute__
         try:
             registry = get_attr("expiring_properties_registry")
         except AttributeError:
-            raise NotImplemented(f"You must define expiring_properties_registry on {self.__class__.__name__} to use"
-                                 " ExpiringCachedPropertyMixIn")
+            raise NotImplemented(
+                f"You must define expiring_properties_registry on {self.__class__.__name__} to use"
+                " ExpiringCachedPropertyMixIn"
+            )
         if item not in registry:
             raise ValueError(f"{self.__class__.__name__}.{item} is registered!")
 
@@ -41,10 +44,12 @@ class ExpiringCachedPropertyMixin:
     def _get_expiration_key(item: str) -> str:
         return f"{item}_expiration_time"
 
-    def _get_new_expiration_time(self, lifetime_in_seconds: int) -> Optional[datetime.datetime]:
+    def _get_new_expiration_time(
+        self, lifetime_in_seconds: int
+    ) -> Optional[datetime.datetime]:
         if lifetime_in_seconds:
             return datetime.datetime.utcnow() + datetime.timedelta(
-                seconds=lifetime_in_seconds # TODO: change to minutes
+                seconds=lifetime_in_seconds  # TODO: change to minutes
             )
         else:
             return None
@@ -60,8 +65,10 @@ class ExpiringCachedPropertyMixin:
         try:
             registry = get_attr("expiring_properties_registry")
         except AttributeError:
-            raise NotImplemented(f"You must define expiring_properties_registry on {self.__class__.__name__} to use"
-                                 " ExpiringCachedPropertyMixIn")
+            raise NotImplemented(
+                f"You must define expiring_properties_registry on {self.__class__.__name__} to use"
+                " ExpiringCachedPropertyMixIn"
+            )
 
         try:
             item_lifetime = registry[item]
@@ -89,8 +96,10 @@ class ExpiringCachedPropertyMixin:
         try:
             registry = get_attr("expiring_properties_registry")
         except AttributeError:
-            raise NotImplemented(f"You must define expiring_properties_registry on {self.__class__.__name__} to use"
-                                 " ExpiringCachedPropertyMixIn")
+            raise NotImplemented(
+                f"You must define expiring_properties_registry on {self.__class__.__name__} to use"
+                " ExpiringCachedPropertyMixIn"
+            )
 
         __dict__ = get_attr("__dict__")
         if key in registry:
