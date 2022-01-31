@@ -1,14 +1,19 @@
+import random
 from decimal import Decimal
+from functools import cached_property
 from typing import Optional, List
 
 from . import enums
+from .commons.caching_utils import ExpiringCachedPropertyMixin
+
+DEFAULT_LIFETIME = 5
 
 
 class System:
     def __init__(self, name: str):
         self.name = name
 
-    def __str__(self):
+    def __repr__(self):
         return f"System '{self.name}'"
 
 
@@ -16,11 +21,20 @@ class Faction:
     def __init__(self, name: str):
         self.name = name
 
-    def __str__(self):
+    def __repr__(self):
         return f"Faction '{self.name}'"
 
 
-class FactionBranch:
+class FactionBranch(ExpiringCachedPropertyMixin):
+    # TODO: this should be handled automatically by decorator and metaclass, but not today.
+    expiring_properties_registry = {
+        "faction": DEFAULT_LIFETIME,
+        "system": DEFAULT_LIFETIME,
+        "is_main": DEFAULT_LIFETIME,
+        "influence": DEFAULT_LIFETIME,
+        "stations": DEFAULT_LIFETIME,
+    }
+
     def __init__(
         self,
         faction: Faction,
@@ -35,8 +49,30 @@ class FactionBranch:
         self.influence = influence
         self.stations = stations or []
 
-    def __str__(self):
+    def __repr__(self):
         return f"{self.faction} in {self.system}"
+
+    @cached_property
+    def faction(self) -> Faction:
+        raise NotImplemented
+
+    @cached_property
+    def system(self) -> System:
+        return System(
+            name=f"Dummy System {random.randint(0,1000)}"
+        )  # TODO: to be replaced
+
+    @cached_property
+    def is_main(self) -> bool:
+        raise NotImplemented
+
+    @cached_property
+    def influence(self) -> Decimal:
+        raise NotImplemented
+
+    @cached_property
+    def stations(self) -> List["OrbitalStation"]:
+        raise NotImplemented
 
 
 class OrbitalStation:
@@ -58,5 +94,5 @@ class OrbitalStation:
         self.services = services or []
         self.controlling_faction = controlling_faction
 
-    def __str__(self):
+    def __repr__(self):
         return f"{self.station_type.title()} '{self.name}'"
