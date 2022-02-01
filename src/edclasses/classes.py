@@ -1,11 +1,10 @@
-import random
 from decimal import Decimal
 from functools import cached_property
 from typing import Optional, List
 
+import src.edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
 from .commons.caching_utils import ExpiringCachedPropertyMixin
-from .api_adapters.elite_bgs_adapter import EliteBgsAdapter
 
 DEFAULT_LIFETIME = 5
 
@@ -27,7 +26,7 @@ class Faction:
 
 
 class FactionBranch(ExpiringCachedPropertyMixin):
-    adapter = EliteBgsAdapter()
+    adapter = bgs_adapter.EliteBgsAdapter()
     # TODO: this should be handled automatically by decorator and metaclass, but not today.
     expiring_properties_registry = {
         "influence": DEFAULT_LIFETIME,
