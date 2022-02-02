@@ -56,7 +56,7 @@ class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
         return station_objects
 
     def _convert_station_dict_to_obj(self, station_dict: dict) -> "OrbitalStation":
-        station_type = station_dict["system"]
+        station_type = station_dict["type"]
         try:
             station_type_enum = enums.StationType(station_type)
         except ValueError:
