@@ -1,4 +1,4 @@
-import src.edclasses
+import edclasses
 
 
 def get_orbital_station(
@@ -9,7 +9,7 @@ def get_orbital_station(
     services=None,
     controlling_faction=None,
 ):
-    return src.edclasses.OrbitalStation(
+    return edclasses.OrbitalStation(
         name=name,
         station_type=station_type,
         system=system,

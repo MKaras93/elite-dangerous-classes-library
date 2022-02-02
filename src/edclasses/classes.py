@@ -2,7 +2,7 @@ from decimal import Decimal
 from functools import cached_property
 from typing import Optional, List
 
-import src.edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
+import edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
 
 from .commons import caching_utils as caching
