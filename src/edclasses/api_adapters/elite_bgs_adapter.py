@@ -14,12 +14,6 @@ class EliteBgsAdapterBase:
 
 class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
     # TODO: find a better way to map it.
-    STATION_TYPE_MAP = {
-        "coriolis": enums.StationType.CORIOLIS_STARPORT,
-        "outpost": enums.StationType.OUTPOST,
-        "mega ship": enums.StationType.MEGASHIP,
-        "planetary outpost": enums.StationType.PLANETARY_OUTPOST,
-    }
 
     @staticmethod
     def _get_factions_from_response(response: dict) -> List:
@@ -62,11 +56,15 @@ class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
         return station_objects
 
     def _convert_station_dict_to_obj(self, station_dict: dict) -> "OrbitalStation":
+        station_type = station_dict["system"]
+        try:
+            station_type_enum = enums.StationType(station_type)
+        except ValueError:
+            station_type_enum = enums.StationType.STATION
+
         return get_orbital_station(
             name=station_dict["name"],
-            station_type=self.STATION_TYPE_MAP.get(
-                station_dict["type"], enums.StationType.STATION
-            ),
+            station_type=station_type_enum,
             system=station_dict["system"],
             distance_to_arrival=station_dict["distance_from_star"],
         )
