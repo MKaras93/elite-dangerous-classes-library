@@ -3,10 +3,16 @@ from typing import List
 
 from .utils import get_orbital_station
 from .. import enums
-from ..api_clients.elite_bgs_client import EliteBgsClient
+from ..api_clients import EliteBgsClient
+from ..utils import return_first_match
 
 
-class EliteBgsAdapter:
+class EliteBgsAdapterBase:
+    def __init__(self):
+        self.client = EliteBgsClient()
+
+
+class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
     # TODO: find a better way to map it.
     STATION_TYPE_MAP = {
         "coriolis": enums.StationType.CORIOLIS_STARPORT,
@@ -15,10 +21,8 @@ class EliteBgsAdapter:
         "planetary outpost": enums.StationType.PLANETARY_OUTPOST,
     }
 
-    def __init__(self):
-        self.client = EliteBgsClient()
-
-    def _get_factions_from_response(self, response: dict):
+    @staticmethod
+    def _get_factions_from_response(response: dict) -> List:
         return response.get("docs", [])
 
     def influence(self, faction_branch: "FactionBranch") -> Decimal:
@@ -60,11 +64,9 @@ class EliteBgsAdapter:
     def _convert_station_dict_to_obj(self, station_dict: dict) -> "OrbitalStation":
         return get_orbital_station(
             name=station_dict["name"],
-            station_type=self.STATION_TYPE_MAP.get(station_dict["type"], enums.StationType.STATION),
+            station_type=self.STATION_TYPE_MAP.get(
+                station_dict["type"], enums.StationType.STATION
+            ),
             system=station_dict["system"],
             distance_to_arrival=station_dict["distance_from_star"],
         )
-
-
-def return_first_match(func, items):
-    return next(item for item in items if func(item))

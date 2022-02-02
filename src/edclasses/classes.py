@@ -27,7 +27,7 @@ class Faction:
 
 
 class FactionBranch(caching.ExpiringCachedPropertyMixin):
-    adapter = bgs_adapter.EliteBgsAdapter()
+    adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
     # TODO: this should be handled automatically by decorator and metaclass, but not today.
     expiring_properties_registry = {
         "influence": DEFAULT_LIFETIME,
