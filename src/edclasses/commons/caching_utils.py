@@ -2,6 +2,7 @@ import datetime
 from typing import Optional, Any
 
 _NEVER_EXPIRE = 0  # TODO: this could be obj()
+NOT_SET = object()
 
 
 class ExpiringCachedPropertyMixin:
@@ -79,7 +80,7 @@ class ExpiringCachedPropertyMixin:
         expiration_key = get_attr("_get_expiration_key")(item)
         expiration_time = cache.get(expiration_key)
         time_expired = expiration_time and datetime.datetime.utcnow() >= expiration_time
-        if time_expired:
+        if time_expired or cache[item] == NOT_SET:
             cache.pop(item, None)
 
         val = get_attr(item)

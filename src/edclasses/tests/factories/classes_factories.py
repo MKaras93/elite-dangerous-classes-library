@@ -34,7 +34,7 @@ class OrbitalStationFactory(factory.Factory):
         model = OrbitalStation
 
     name = "Orbital Station"
-    station_type = StationType.CORIOLIS_STARPORT
+    station_type = StationType.CORIOLIS
     system = factory.SubFactory(SystemFactory)
     distance_to_arrival = 100
     services = list()
