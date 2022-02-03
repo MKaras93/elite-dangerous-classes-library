@@ -3,35 +3,7 @@ from typing import Optional, List
 
 import edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
-
-
-class UniqueInstanceMixin:
-    registry = {}
-    keys = tuple()
-
-    @classmethod
-    def create(cls, **kwargs):
-        try:
-            return cls(**kwargs)
-        except ValueError:
-            return cls.get_from_registry(**kwargs)
-
-    @classmethod
-    def _get_key(cls, *args, **kwargs):
-        return tuple(kwargs[attr] for attr in cls.keys)
-
-    @classmethod
-    def get_from_registry(cls, **kwargs):
-        obj_key = cls._get_key(**kwargs)
-        return cls.registry.get(obj_key)
-
-    def __init__(self, *args, **kwargs):
-        obj_key = self._get_key(**self.__dict__)
-        obj = self.__class__.registry.get(obj_key)
-        if obj is not None:
-            raise ValueError
-        self.__class__.registry[obj_key] = self
-        super().__init__()
+from .utils import UniqueInstanceMixin
 
 
 class System(UniqueInstanceMixin):
@@ -60,7 +32,10 @@ class Faction(UniqueInstanceMixin):
 
 
 class FactionBranch(UniqueInstanceMixin):
-    keys = ("faction", "system",)
+    keys = (
+        "faction",
+        "system",
+    )
     adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
 
     def __init__(
@@ -82,7 +57,10 @@ class FactionBranch(UniqueInstanceMixin):
 
 
 class OrbitalStation(UniqueInstanceMixin):
-    keys = ("name", "system",)
+    keys = (
+        "name",
+        "system",
+    )
 
     def __init__(
         self,
