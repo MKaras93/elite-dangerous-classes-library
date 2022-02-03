@@ -39,6 +39,8 @@ class System(UniqueInstanceMixin):
 
     def __init__(self, name: str):
         self.name = name
+        self._stations = set()
+        self._faction_branches = set()
         super().__init__()
 
     def __repr__(self):
@@ -50,6 +52,7 @@ class Faction(UniqueInstanceMixin):
 
     def __init__(self, name: str):
         self.name = name
+        self._faction_branches = set()
         super().__init__()
 
     def __repr__(self):
@@ -66,17 +69,16 @@ class FactionBranch(UniqueInstanceMixin):
         system: System,
         is_main: bool = False,
         influence: Decimal = None,
-        stations: List["OrbitalStation"] = None,
     ):
-        self.faction = faction
-        self.system = system
+        self._faction = faction
+        self._system = system
         self.is_main = is_main
         self.influence = influence
-        self.stations = stations or []
+        self._stations = set()
         super().__init__()
 
     def __repr__(self):
-        return f"{self.faction} in {self.system}"
+        return f"{self._faction} in {self._system}"
 
 
 class OrbitalStation(UniqueInstanceMixin):
@@ -89,16 +91,13 @@ class OrbitalStation(UniqueInstanceMixin):
         system: System,
         distance_to_arrival: int,
         services: Optional[List] = None,
-        controlling_faction: Optional[
-            FactionBranch  # TODO: would it be better to use Faction instead of FactionBranch?
-        ] = None,
     ):
         self.name = name
         self.station_type = station_type.value
         self.system = system
         self.distance_to_arrival = distance_to_arrival
         self.services = services or []
-        self.controlling_faction = controlling_faction
+        self._controlling_faction = None
         super().__init__()
 
     def __repr__(self):
