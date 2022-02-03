@@ -1,13 +1,8 @@
 from decimal import Decimal
-from functools import cached_property
 from typing import Optional, List
 
 import edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
-
-from .commons import caching_utils as caching
-
-DEFAULT_LIFETIME = 5
 
 
 class System:
@@ -26,21 +21,16 @@ class Faction:
         return f"Faction '{self.name}'"
 
 
-class FactionBranch(caching.ExpiringCachedPropertyMixin):
+class FactionBranch:
     adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
-    # TODO: this should be handled automatically by decorator and metaclass, but not today.
-    expiring_properties_registry = {
-        "influence": DEFAULT_LIFETIME,
-        "stations": DEFAULT_LIFETIME,
-    }
 
     def __init__(
         self,
         faction: Faction,
         system: System,
         is_main: bool = False,
-        influence: Decimal = caching.NOT_SET,
-        stations: List["OrbitalStation"] = caching.NOT_SET,
+        influence: Decimal = None,
+        stations: List["OrbitalStation"] = None,
     ):
         self.faction = faction
         self.system = system
@@ -51,14 +41,6 @@ class FactionBranch(caching.ExpiringCachedPropertyMixin):
     def __repr__(self):
         return f"{self.faction} in {self.system}"
 
-    @cached_property
-    def influence(self) -> Decimal:
-        return self.adapter.influence(self)
-
-    @cached_property
-    def stations(self) -> List["OrbitalStation"]:
-        return self.adapter.stations(self)
-
 
 class OrbitalStation:
     def __init__(
@@ -67,10 +49,10 @@ class OrbitalStation:
         station_type: enums.StationType,
         system: System,
         distance_to_arrival: int,
-        services: Optional[List] = caching.NOT_SET,
+        services: Optional[List] = None,
         controlling_faction: Optional[
             FactionBranch  # TODO: would it be better to use Faction instead of FactionBranch?
-        ] = caching.NOT_SET,
+        ] = None,
     ):
         self.name = name
         self.station_type = station_type.value
