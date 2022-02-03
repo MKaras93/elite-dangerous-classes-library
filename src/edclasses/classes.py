@@ -45,15 +45,19 @@ class System(UniqueInstanceMixin):
         return f"System '{self.name}'"
 
 
-class Faction:
+class Faction(UniqueInstanceMixin):
+    keys = ("name",)
+
     def __init__(self, name: str):
         self.name = name
+        super().__init__()
 
     def __repr__(self):
         return f"Faction '{self.name}'"
 
 
-class FactionBranch:
+class FactionBranch(UniqueInstanceMixin):
+    keys = ("faction", "system",)
     adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
 
     def __init__(
@@ -69,12 +73,15 @@ class FactionBranch:
         self.is_main = is_main
         self.influence = influence
         self.stations = stations or []
+        super().__init__()
 
     def __repr__(self):
         return f"{self.faction} in {self.system}"
 
 
-class OrbitalStation:
+class OrbitalStation(UniqueInstanceMixin):
+    keys = ("name", "system",)
+
     def __init__(
         self,
         name: str,
@@ -92,6 +99,7 @@ class OrbitalStation:
         self.distance_to_arrival = distance_to_arrival
         self.services = services or []
         self.controlling_faction = controlling_faction
+        super().__init__()
 
     def __repr__(self):
         return f"{self.station_type.title()} '{self.name}'"
