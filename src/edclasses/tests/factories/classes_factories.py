@@ -26,7 +26,7 @@ class FactionBranchFactory(factory.Factory):
     system = factory.SubFactory(SystemFactory)
     is_main = False  # we don't need to know faction's main branch - usually we won't have this information
     influence = 50
-    stations = list()
+    stations = set()
 
 
 class OrbitalStationFactory(factory.Factory):
