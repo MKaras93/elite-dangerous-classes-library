@@ -1,4 +1,5 @@
-from typing import Tuple
+from collections import defaultdict
+from typing import Tuple, List
 
 
 def return_first_match(func, items):
@@ -46,6 +47,7 @@ class UniqueInstanceMixin:
 
 
 class OneToOneRelation(UniqueInstanceMixin):
+    registry = {}
     keys = ("parent_class_name", "child_class_name",)
 
     def __init__(self, parent_class_name: str, child_class_name: str):
@@ -86,3 +88,44 @@ class OneToOneRelation(UniqueInstanceMixin):
     def _add_link(self, parent_obj, child_obj):
         self.parent_side[parent_obj] = child_obj
         self.child_side[child_obj] = parent_obj
+
+
+class OneToManyRelation(OneToOneRelation):
+    registry = {}
+
+    def __init__(self, parent_class_name: str, child_class_name: str):
+        super().__init__(parent_class_name, child_class_name)
+        self.parent_side = defaultdict(list)
+
+    def _add_link(self, parent_obj, child_obj):
+        self.parent_side[parent_obj].append(child_obj)
+        self.child_side[child_obj] = parent_obj
+
+    def _delete_link(self, parent_obj, child_obj):
+        self.parent_side[parent_obj].remove(child_obj)
+        self.child_side.pop(child_obj)
+
+    def get_for_parent(self, parent_obj):
+        return self.parent_side.get(parent_obj, list())
+
+    def set_for_parent(self, parent_obj, children: List):
+        old_children = self.get_for_parent(parent_obj)
+        for child in old_children:
+            self.child_side.pop(child)
+
+        for child in children:
+            self.child_side[child] = parent_obj
+
+        self.parent_side[parent_obj] = children
+
+    def set_for_child(self, child_obj, parent_obj):
+        old_parent = self.get_for_child(child_obj)
+
+        if parent_obj is old_parent:
+            return
+
+        if old_parent is not None:
+            self._delete_link(old_parent, child_obj)
+
+        if parent_obj is not None:
+            self._add_link(parent_obj, child_obj)
