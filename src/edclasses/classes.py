@@ -3,29 +3,29 @@ from typing import Optional, List, Set
 
 import edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
-from .utils import UniqueInstanceMixin, OneToOneRelation
+from .utils import UniqueInstanceMixin, OneToOneRelation, OneToManyRelation
 
 
 class System(UniqueInstanceMixin):
     keys = ("name",)
     registry = {}
-    _station_relation = OneToOneRelation.create(parent_class_name="System", child_class_name="OrbitalStation")
+    _stations_relation = OneToManyRelation.create(parent_class_name="System", child_class_name="OrbitalStation")
 
-    def __init__(self, name: str, station=None):
+    def __init__(self, name: str, stations=None):
         self.name = name
-        self.station = station
+        self.stations = stations or []
         super().__init__()
 
     def __repr__(self):
         return f"System '{self.name}'"
 
-    def _station_setter(self, value):
-        self._station_relation.set_for_parent(self, value)
+    def _stations_setter(self, value):
+        self._stations_relation.set_for_parent(self, value)
 
-    def _station_getter(self):
-        return self._station_relation.get_for_parent(self)
+    def _stations_getter(self):
+        return self._stations_relation.get_for_parent(self)
 
-    station = property(fget=_station_getter, fset=_station_setter)
+    stations = property(fget=_stations_getter, fset=_stations_setter)
 
 class Faction(UniqueInstanceMixin):
     keys = ("name",)
@@ -96,7 +96,7 @@ class OrbitalStation(UniqueInstanceMixin):
         "system",
     )
     registry = {}
-    _system_relation = OneToOneRelation.create(parent_class_name="System", child_class_name="OrbitalStation")
+    _system_relation = OneToManyRelation.create(parent_class_name="System", child_class_name="OrbitalStation")
 
     def __init__(
         self,

@@ -112,8 +112,12 @@ class OneToManyRelation(OneToOneRelation):
         old_children = self.get_for_parent(parent_obj)
         for child in old_children:
             self.child_side.pop(child)
+            # self._delete_link(parent_obj, child)
 
         for child in children:
+            old_parent = self.get_for_child(child)
+            if old_parent is not None:
+                self._delete_link(old_parent, child)
             self.child_side[child] = parent_obj
 
         self.parent_side[parent_obj] = children
