@@ -3,17 +3,19 @@ from typing import Optional, List, Set
 
 import edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
-from .utils import UniqueInstanceMixin, OneToOneRelation, OneToManyRelation
+from .utils import UniqueInstanceMixin, OneToManyRelation
 
 
 class System(UniqueInstanceMixin):
     keys = ("name",)
     registry = {}
     _stations_relation = OneToManyRelation.create(parent_class_name="System", child_class_name="OrbitalStation")
+    _faction_branches_relation = OneToManyRelation.create(parent_class_name="System", child_class_name="FactionBranch")
 
-    def __init__(self, name: str, stations=None):
+    def __init__(self, name: str, stations=None, faction_branches=None):
         self.name = name
         self.stations = stations or []
+        self.faction_branches = faction_branches or []
         super().__init__()
 
     def __repr__(self):
@@ -27,22 +29,33 @@ class System(UniqueInstanceMixin):
 
     stations = property(fget=_stations_getter, fset=_stations_setter)
 
+    def _faction_branches_setter(self, value):
+        self._faction_branches_relation.set_for_parent(self, value)
+
+    def _faction_branches_getter(self):
+        return self._faction_branches_relation.get_for_parent(self)
+
+    faction_branches = property(fget=_faction_branches_getter, fset=_faction_branches_setter)
+
 class Faction(UniqueInstanceMixin):
     keys = ("name",)
     registry = {}
+    _faction_branches_relation = OneToManyRelation.create(parent_class_name="Faction", child_class_name="FactionBranch")
 
     def __init__(self, name: str):
         self.name = name
-        self._faction_branches = set()
         super().__init__()
 
     def __repr__(self):
         return f"Faction '{self.name}'"
 
-    @property
-    def faction_branches(self) -> Set["FactionBranch"]:
-        return self._faction_branches
+    def _faction_branches_setter(self, value):
+        self._faction_branches_relation.set_for_parent(self, value)
 
+    def _faction_branches_getter(self):
+        return self._faction_branches_relation.get_for_parent(self)
+
+    faction_branches = property(fget=_faction_branches_getter, fset=_faction_branches_setter)
 
 class FactionBranch(UniqueInstanceMixin):
     keys = (
@@ -51,6 +64,8 @@ class FactionBranch(UniqueInstanceMixin):
     )
     registry = {}
     adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
+    _system_relation = OneToManyRelation.create(parent_class_name="System", child_class_name="FactionBranch")
+    _faction_relation = OneToManyRelation.create(parent_class_name="Faction", child_class_name="FactionBranch")
 
     def __init__(
         self,
@@ -59,35 +74,35 @@ class FactionBranch(UniqueInstanceMixin):
         is_main: bool = False,
         influence: Decimal = None,
     ):
-        self._faction = faction
-        self._system = system
+        self.faction = faction
+        self.system = system
         self.is_main = is_main
         self.influence = influence
         self._stations = set()
         super().__init__()
 
     def __repr__(self):
-        return f"{self._faction} in {self._system}"
-
-    def delete(self):
-        try:
-            self._faction._faction_branches.remove(self)
-            self._system._faction_branches.remove(self)
-            del self
-        except KeyError:
-            super().delete()
-
-    @property
-    def faction(self) -> Faction:
-        return self._faction
-
-    @property
-    def system(self) -> System:
-        return self._system
+        return f"{self.faction} in {self.system}"
 
     @property
     def stations(self) -> Set["OrbitalStation"]:
         return self._stations
+
+    def _system_setter(self, value):
+        self._system_relation.set_for_child(self, value)
+
+    def _system_getter(self):
+        return self._system_relation.get_for_child(self)
+
+    system = property(fget=_system_getter, fset=_system_setter)
+
+    def _faction_setter(self, value):
+        self._faction_relation.set_for_child(self, value)
+
+    def _faction_getter(self):
+        return self._faction_relation.get_for_child(self)
+
+    faction = property(fget=_faction_getter, fset=_faction_setter)
 
 
 class OrbitalStation(UniqueInstanceMixin):
