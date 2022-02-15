@@ -46,4 +46,14 @@ class TestSystem:
             assert station.controlling_faction == faction_branch
             assert faction_branch.stations == {station}
             assert system.stations == {station}
-    class StationControllingFactionSetter:
+
+class TestLinks:
+    def test_links(self):
+        system = SystemFactory()
+        faction = FactionFactory(name="faction1")
+        faction2 = FactionFactory(name="faction2")
+        faction_branch = FactionBranchFactory(faction=faction, system=system)
+        faction_branch2 = FactionBranchFactory(faction=faction2, system=system)
+        assert system.faction_branches == [faction_branch, faction_branch2]
+        assert faction.faction_branches == [faction_branch]
+        assert faction2.faction_branches == [faction_branch2]
