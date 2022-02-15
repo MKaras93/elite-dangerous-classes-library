@@ -1,3 +1,6 @@
+from typing import Tuple
+
+
 def return_first_match(func, items):
     return next(item for item in items if func(item))
 
@@ -40,3 +43,31 @@ class UniqueInstanceMixin:
 
     def delete(self):
         self.remove_from_registry()
+
+
+class OneToOneRelation(UniqueInstanceMixin):
+    keys = ("parent_class_name", "child_class_name",)
+
+    def __init__(self, parent_class_name: str, child_class_name: str):
+        self.parent_class_name = parent_class_name
+        self.child_class_name = child_class_name
+        self.parent_side = {}
+        self.child_side = {}
+        super().__init__()
+
+    def _get_relation_key(self) -> Tuple[str, str]:
+        return self.parent_class_name, self.child_class_name
+
+    def set_for_parent(self, parent_obj, child_obj):
+        self.parent_side[parent_obj] = child_obj
+        self.child_side[child_obj] = parent_obj
+
+    def get_for_parent(self, parent_obj):
+        return self.parent_side.get(parent_obj, None)
+
+    def set_for_child(self, child_obj, parent_obj):
+        self.child_side[child_obj] = parent_obj
+        self.parent_side[parent_obj] = child_obj
+
+    def get_for_child(self, child_obj):
+        return self.child_side.get(child_obj, None)

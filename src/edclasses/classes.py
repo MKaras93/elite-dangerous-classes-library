@@ -3,44 +3,29 @@ from typing import Optional, List, Set
 
 import edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
-from .utils import UniqueInstanceMixin
+from .utils import UniqueInstanceMixin, OneToOneRelation
 
 
 class System(UniqueInstanceMixin):
     keys = ("name",)
     registry = {}
+    _station_relation = OneToOneRelation.create(parent_class_name="System", child_class_name="OrbitalStation")
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, station=None):
         self.name = name
-        self._stations = set()
-        self._faction_branches = set()
+        self.station = station
         super().__init__()
 
     def __repr__(self):
         return f"System '{self.name}'"
 
-    def add_faction_branch(self, faction: "Faction") -> "FactionBranch":
-        faction_branch = FactionBranch.create(system=self, faction=faction)
-        self._faction_branches.add(faction_branch)
-        faction._faction_branches.add(faction_branch)
-        return faction_branch
+    def _station_setter(self, value):
+        self._station_relation.set_for_parent(self, value)
 
-    def add_station(self, **kwargs) -> "OrbitalStation":
-        station = OrbitalStation.create(system=self, **kwargs)
-        self._stations.add(station)
-        return station
-        # controlling_faction_branch = kwargs.get("controlling_faction")
-        # if controlling_faction_branch is not None:
-        #     controlling_faction_branch._stations.add(station)
+    def _station_getter(self):
+        return self._station_relation.get_for_parent(self)
 
-    @property
-    def stations(self) -> Set["OrbitalStation"]:
-        return self._stations
-
-    @property
-    def faction_branches(self) -> Set["FactionBranch"]:
-        return self._faction_branches
-
+    station = property(fget=_station_getter, fset=_station_setter)
 
 class Faction(UniqueInstanceMixin):
     keys = ("name",)
@@ -111,6 +96,7 @@ class OrbitalStation(UniqueInstanceMixin):
         "system",
     )
     registry = {}
+    _system_relation = OneToOneRelation.create(parent_class_name="System", child_class_name="OrbitalStation")
 
     def __init__(
         self,
@@ -122,7 +108,7 @@ class OrbitalStation(UniqueInstanceMixin):
     ):
         self.name = name
         self.station_type = station_type.value
-        self._system = system
+        self.system = system
         self.distance_to_arrival = distance_to_arrival
         self.services = services or []
         self._controlling_faction = None
@@ -146,6 +132,10 @@ class OrbitalStation(UniqueInstanceMixin):
                 faction_branch._stations.add(self)
         self._controlling_faction = faction_branch
 
-    @property
-    def system(self) -> System:
-        return self._system
+    def _system_setter(self, value):
+        self._system_relation.set_for_child(self, value)
+
+    def _system_getter(self):
+        return self._system_relation.get_for_child(self)
+
+    system = property(fget=_system_getter, fset=_system_setter)
