@@ -59,6 +59,15 @@ class OneToOneRelation(UniqueInstanceMixin):
         return self.parent_class_name, self.child_class_name
 
     def set_for_parent(self, parent_obj, child_obj):
+        old_child = self.get_for_parent(parent_obj)
+
+        if old_child and child_obj is not old_child:
+            self._clear_link(parent_obj, old_child)
+
+        if child_obj is not None:
+            self._set_for_parent(parent_obj, child_obj)
+
+    def _set_for_parent(self, parent_obj, child_obj):
         self.parent_side[parent_obj] = child_obj
         self.child_side[child_obj] = parent_obj
 
@@ -66,8 +75,21 @@ class OneToOneRelation(UniqueInstanceMixin):
         return self.parent_side.get(parent_obj, None)
 
     def set_for_child(self, child_obj, parent_obj):
+        old_parent = self.get_for_child(child_obj)
+
+        if old_parent and parent_obj is not old_parent:
+            self._clear_link(old_parent, child_obj)
+
+        if parent_obj is not None:
+            self._set_for_child(child_obj, parent_obj)
+
+    def _set_for_child(self, child_obj, parent_obj):
         self.child_side[child_obj] = parent_obj
         self.parent_side[parent_obj] = child_obj
 
     def get_for_child(self, child_obj):
         return self.child_side.get(child_obj, None)
+
+    def _clear_link(self, parent_obj, child_obj):
+        self.parent_side.pop(parent_obj)
+        self.child_side.pop(child_obj)
