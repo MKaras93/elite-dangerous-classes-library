@@ -83,7 +83,7 @@ class FactionBranch(UniqueInstanceMixin):
         parent_class_name="Faction", child_class_name="FactionBranch"
     )
     _stations_relation = OneToManyRelation.create(
-        parent_class_name="System", child_class_name="OrbitalStation"
+        parent_class_name="FactionBranch", child_class_name="OrbitalStation"
     )
 
     def __init__(
