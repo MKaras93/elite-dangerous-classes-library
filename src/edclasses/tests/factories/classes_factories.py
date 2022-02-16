@@ -8,14 +8,14 @@ class SystemFactory(factory.Factory):
     class Meta:
         model = System
 
-    name = "System"
+    name = factory.Sequence(lambda n: f"System {n}")
 
 
 class FactionFactory(factory.Factory):
     class Meta:
         model = Faction
 
-    name = "Faction"
+    name = factory.Sequence(lambda n: f"Faction {n}")
 
 
 class FactionBranchFactory(factory.Factory):
@@ -32,8 +32,8 @@ class OrbitalStationFactory(factory.Factory):
     class Meta:
         model = OrbitalStation
 
-    name = "Orbital Station"
-    station_type = StationType.CORIOLIS
+    name = factory.Sequence(lambda n: f"Orbital Station {n}")
+    station_type = StationType.STATION
     system = factory.SubFactory(SystemFactory)
     distance_to_arrival = 100
     services = list()
