@@ -14,7 +14,7 @@ class UniqueInstanceMixin:
     def create(cls, **kwargs):
         try:
             return cls(**kwargs)
-        except ValueError:
+        except InstanceAlreadyExists:
             return cls.get_from_registry(**kwargs)
 
     @classmethod
@@ -34,7 +34,7 @@ class UniqueInstanceMixin:
         obj_key = self._get_key(self)
         obj = self.__class__.registry.get(obj_key)
         if obj is not None:
-            raise ValueError
+            raise InstanceAlreadyExists
         self.__class__.registry[obj_key] = self
         super().__init__()
 
@@ -132,3 +132,7 @@ class OneToManyRelation(OneToOneRelation):
 
         if parent_obj is not None:
             self._add_link(parent_obj, child_obj)
+
+
+class InstanceAlreadyExists(Exception):
+    pass
