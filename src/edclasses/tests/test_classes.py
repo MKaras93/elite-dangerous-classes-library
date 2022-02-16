@@ -4,13 +4,13 @@ from .factories.classes_factories import (
     FactionBranchFactory,
     OrbitalStationFactory,
 )
-from .. import System, Faction, enums
+from .. import System, Faction, enums, FactionBranch
 
 
 def test_system_factory():
     # TODO: remove, it's an exmaple test to check pytest and factory setup
     system = SystemFactory()
-    assert system.name == "System"
+    assert system.name == "System 0"
 
 
 def test_classes():
@@ -26,26 +26,34 @@ class TestSystem:
         def test_create_branch_updates_related_objects(self):
             system: System = SystemFactory()
             faction: Faction = FactionFactory()
+            faction2: Faction = FactionFactory()
 
-            faction_branch_1 = system.create_faction_branch(faction)
-            faction_branch_2 = system.create_faction_branch(faction)
+            faction_branch_1 = FactionBranchFactory(faction=faction, system=system)
+            faction_branch_2 = FactionBranchFactory(faction=faction2, system=system)
 
             assert faction_branch_1.system == system
             assert faction_branch_1.faction == faction
-            assert system.faction_branches == {faction_branch_1, faction_branch_2}
-            assert faction.faction_branches == {faction_branch_1, faction_branch_2}
+            assert faction_branch_2.system == system
+            assert faction_branch_2.faction == faction2
+            assert system.faction_branches == [faction_branch_1, faction_branch_2]
+            assert faction.faction_branches == [faction_branch_1]
+            assert faction2.faction_branches == [faction_branch_2]
 
         def test_create_station_updates_related_objects(self):
             system: System = SystemFactory()
             faction_branch = FactionBranchFactory(system=system)
 
-            station = system.create_station(name="station", station_type=enums.StationType.STATION, controlling_faction=faction_branch)
+            station1 = OrbitalStationFactory(station_type=enums.StationType.STATION, controlling_faction=faction_branch, system=system)
+            station2 = OrbitalStationFactory(station_type=enums.StationType.STATION, controlling_faction=faction_branch, system=system)
 
-            assert station.station_type == enums.StationType.STATION
-            assert station.system == system
-            assert station.controlling_faction == faction_branch
-            assert faction_branch.stations == {station}
-            assert system.stations == {station}
+            assert station1.station_type == enums.StationType.STATION.value
+            assert station1.system == system
+            assert station1.controlling_faction == faction_branch
+            assert station2.system == system
+            assert station2.controlling_faction == faction_branch
+            assert system.stations == [station1, station2]
+            assert faction_branch.stations == [station1, station2]
+
 
 class TestLinks:
     def test_links(self):
