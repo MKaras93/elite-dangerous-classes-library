@@ -3,7 +3,7 @@ from typing import Optional, List
 
 import edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
-from .utils import UniqueInstanceMixin, OneToManyRelation
+from .utils import UniqueInstanceMixin, OneToManyRelation, AutoRefreshMixin
 
 
 class System(UniqueInstanceMixin):
@@ -69,13 +69,16 @@ class Faction(UniqueInstanceMixin):
     )
 
 
-class FactionBranch(UniqueInstanceMixin):
+class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
     keys = (
         "faction",
         "system",
     )
     registry = {}
     adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
+    refreshed_fields = ("influence",)
+    EXPIRATION_TIME_MINUTES = 1
+
     _system_relation = OneToManyRelation.create(
         parent_class_name="System", child_class_name="FactionBranch"
     )
