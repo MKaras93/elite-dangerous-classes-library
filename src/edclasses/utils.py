@@ -1,3 +1,4 @@
+import datetime
 from collections import defaultdict
 from typing import Tuple, List
 
@@ -21,7 +22,7 @@ class UniqueInstanceMixin:
     def _get_key(cls, *args, **kwargs):
         if args:
             instance = args[0]
-            return tuple(getattr(instance,attr) for attr in cls.keys)
+            return tuple(getattr(instance, attr) for attr in cls.keys)
         else:
             return tuple(kwargs[attr] for attr in cls.keys)
 
@@ -48,7 +49,10 @@ class UniqueInstanceMixin:
 
 class OneToOneRelation(UniqueInstanceMixin):
     registry = {}
-    keys = ("parent_class_name", "child_class_name",)
+    keys = (
+        "parent_class_name",
+        "child_class_name",
+    )
 
     def __init__(self, parent_class_name: str, child_class_name: str):
         self.parent_class_name = parent_class_name
@@ -136,3 +140,41 @@ class OneToManyRelation(OneToOneRelation):
 
 class InstanceAlreadyExists(Exception):
     pass
+
+
+class AutoRefreshMixin:
+    refreshed_fields = tuple()
+    adapter = None
+    EXPIRATION_TIME_MINUTES = 60
+
+    def _get_new_expiration_registry(self):
+        get_atr = super().__getattribute__
+        expiration_registry = {item: None for item in get_atr("refreshed_fields")}
+        self._expiration_registry = expiration_registry
+        return expiration_registry
+
+    def __getattribute__(self, item):
+        get_atr = super().__getattribute__
+        try:
+            expiration_registry = get_atr("_expiration_registry")
+        except AttributeError:
+            expiration_registry = get_atr("_get_new_expiration_registry")()
+
+        try:
+            expiration_date = expiration_registry[item]
+        except KeyError:
+            return get_atr(item)
+
+        is_expired = expiration_date is None or expiration_date <= datetime.datetime.utcnow()
+
+        if is_expired:
+            adapter = get_atr("adapter")
+            refresh_func = getattr(adapter, item)
+            value = refresh_func(self)  # TO CHECK: this will call getattribute again, can lead to loops
+
+            expiration_registry[item] = datetime.datetime.utcnow() + datetime.timedelta(
+                minutes=get_atr("EXPIRATION_TIME_MINUTES")
+            )
+            setattr(self, item, value)
+
+        return get_atr(item)
