@@ -92,11 +92,13 @@ class FactionBranch(UniqueInstanceMixin):
         system: System,
         is_main: bool = False,
         influence: Decimal = None,
+        stations: List = None,
     ):
         self.faction = faction
         self.system = system
         self.is_main = is_main
         self.influence = influence
+        self.stations = stations or []
         super().__init__()
 
     def __repr__(self):
