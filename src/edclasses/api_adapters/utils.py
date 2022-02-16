@@ -9,7 +9,7 @@ def get_orbital_station(
     services=None,
     controlling_faction=None,
 ):
-    return edclasses.OrbitalStation(
+    return edclasses.OrbitalStation.create(
         name=name,
         station_type=station_type,
         system=system,
