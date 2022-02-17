@@ -11,14 +11,26 @@ class EliteBgsAdapterBase:
     def __init__(self):
         self.client = EliteBgsClient()
 
+    def _convert_station_dict_to_obj(self, station_dict: dict) -> "OrbitalStation":
+        station_type = station_dict["type"]
+        try:
+            station_type_enum = enums.StationType(station_type)
+        except ValueError:
+            station_type_enum = enums.StationType.STATION
 
-class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
-    # TODO: find a better way to map it.
+        return get_orbital_station(
+            name=station_dict["name"],
+            station_type=station_type_enum,
+            system=station_dict["system"],
+            distance_to_arrival=station_dict["distance_from_star"],
+        )
 
     @staticmethod
     def _get_factions_from_response(response: dict) -> List:
         return response.get("docs", [])
 
+
+class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
     def influence(self, faction_branch: "FactionBranch") -> Decimal:
         faction_name = faction_branch.faction.name
         data = self.client.factions(name=faction_name)
@@ -54,17 +66,3 @@ class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
             station_objects.append(station_obj)
 
         return station_objects
-
-    def _convert_station_dict_to_obj(self, station_dict: dict) -> "OrbitalStation":
-        station_type = station_dict["type"]
-        try:
-            station_type_enum = enums.StationType(station_type)
-        except ValueError:
-            station_type_enum = enums.StationType.STATION
-
-        return get_orbital_station(
-            name=station_dict["name"],
-            station_type=station_type_enum,
-            system=station_dict["system"],
-            distance_to_arrival=station_dict["distance_from_star"],
-        )
