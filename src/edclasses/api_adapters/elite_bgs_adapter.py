@@ -6,10 +6,11 @@ from .. import enums
 from ..api_clients import EliteBgsClient
 from ..utils import return_first_match
 
+ELITE_BGS_CLIENT = EliteBgsClient()
 
 class EliteBgsAdapterBase:
     def __init__(self):
-        self.client = EliteBgsClient()
+        self.client = ELITE_BGS_CLIENT
 
     def _convert_station_dict_to_obj(self, station_dict: dict) -> "OrbitalStation":
         station_type = station_dict["type"]
@@ -86,7 +87,7 @@ class EliteBgsSystemAdapter(EliteBgsAdapterBase):
         for faction in factions:
             faction_in_this_system = return_first_match(
                 lambda fact: fact["system_name_lower"] == system_name_lower,
-                factions["faction_presence"],
+                faction["faction_presence"],
             )
             faction_branch_obj = self._convert_faction_presence_dict_to_obj(
                 faction_presence_dict=faction_in_this_system,

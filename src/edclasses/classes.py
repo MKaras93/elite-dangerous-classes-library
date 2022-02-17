@@ -6,9 +6,13 @@ from . import enums
 from .utils import UniqueInstanceMixin, OneToManyRelation, AutoRefreshMixin
 
 
-class System(UniqueInstanceMixin):
+class System(UniqueInstanceMixin, AutoRefreshMixin):
     keys = ("name",)
     registry = {}
+    adapter = bgs_adapter.EliteBgsSystemAdapter()
+    refreshed_fields = ("faction_branches", "stations")
+    EXPIRATION_TIME_MINUTES = 5
+
     _stations_relation = OneToManyRelation.create(
         parent_class_name="System", child_class_name="OrbitalStation"
     )

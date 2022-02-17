@@ -13,6 +13,7 @@ class EliteBgsClient:
     # (e.g. object representing faction presence) and then reuse that.
     def get_request(self, path="", **kwargs):
         url = parse.urljoin(self.API_URL, path)
+        print(f"Shooting at {url} with params {kwargs}")
         response = requests.get(url, params=kwargs)
         return response.json()
 
