@@ -107,3 +107,24 @@ class EliteBgsSystemAdapter(EliteBgsAdapterBase):
             station_objects.append(station_obj)
 
         return station_objects
+
+
+class EliteBgsFactionAdapter(EliteBgsAdapterBase):
+    def faction_branches(self, faction_obj):
+        data = self.client.factions(name=faction_obj.name)
+        factions = data["docs"]
+
+        faction_branches = []
+
+        faction_data = return_first_match(
+            lambda fact: fact["name"].lower() == faction_obj.name.lower(), factions
+        )
+
+        for faction_presence in faction_data["faction_presence"]:
+            faction_branch_obj = self._convert_faction_presence_dict_to_obj(
+                faction_presence_dict=faction_presence,
+                faction_name=faction_obj.name,
+            )
+            faction_branches.append(faction_branch_obj)
+
+        return faction_branches
