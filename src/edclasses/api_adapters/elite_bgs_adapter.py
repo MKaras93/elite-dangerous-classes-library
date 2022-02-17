@@ -42,7 +42,7 @@ class EliteBgsAdapterBase:
 class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
     def influence(self, faction_branch: "FactionBranch") -> Decimal:
         faction_name = faction_branch.faction.name
-        data = self.client.factions(name=faction_name)
+        data = self.client.factions(system=faction_branch.system.name)
 
         factions = data["docs"]
         faction = return_first_match(

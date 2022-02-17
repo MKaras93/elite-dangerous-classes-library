@@ -48,9 +48,13 @@ class System(UniqueInstanceMixin, AutoRefreshMixin):
     )
 
 
-class Faction(UniqueInstanceMixin):
+class Faction(UniqueInstanceMixin, AutoRefreshMixin):
     keys = ("name",)
     registry = {}
+    adapter = bgs_adapter.EliteBgsFactionAdapter()
+    refreshed_fields = ("faction_branches",)
+    EXPIRATION_TIME_MINUTES = 5
+
     _faction_branches_relation = OneToManyRelation.create(
         parent_class_name="Faction", child_class_name="FactionBranch"
     )
