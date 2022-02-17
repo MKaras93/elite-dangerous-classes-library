@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List
 
-from .utils import get_orbital_station
+from .utils import get_orbital_station, get_faction_branch, get_faction, get_system
 from .. import enums
 from ..api_clients import EliteBgsClient
 from ..utils import return_first_match
@@ -24,6 +24,14 @@ class EliteBgsAdapterBase:
             system=station_dict["system"],
             distance_to_arrival=station_dict["distance_from_star"],
         )
+
+    def _convert_faction_presence_dict_to_obj(
+        self, faction_presence_dict: dict, faction_name: str
+    ) -> "FactionBranch":
+        faction = get_faction(name=faction_name)
+        system = get_system(name=faction_presence_dict["system_name"])
+        faction_branch = get_faction_branch(faction=faction, system=system)
+        return faction_branch
 
     @staticmethod
     def _get_factions_from_response(response: dict) -> List:
@@ -62,6 +70,38 @@ class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
 
         station_objects = []
         for station in faction_stations:
+            station_obj = self._convert_station_dict_to_obj(station)
+            station_objects.append(station_obj)
+
+        return station_objects
+
+
+class EliteBgsSystemAdapter(EliteBgsAdapterBase):
+    def faction_branches(self, system: "System"):
+        system_name_lower = system.name.lower()
+        data = self.client.factions(system=system.name)
+        factions = data["docs"]
+
+        faction_branches = []
+        for faction in factions:
+            faction_in_this_system = return_first_match(
+                lambda fact: fact["system_name_lower"] == system_name_lower,
+                factions["faction_presence"],
+            )
+            faction_branch_obj = self._convert_faction_presence_dict_to_obj(
+                faction_presence_dict=faction_in_this_system,
+                faction_name=faction["name"],
+            )
+            faction_branches.append(faction_branch_obj)
+
+        return faction_branches
+
+    def stations(self, system: "System") -> List["OrbitalStations"]:
+        data = self.client.stations(system=system.name)
+        stations = data["docs"]
+
+        station_objects = []
+        for station in stations:
             station_obj = self._convert_station_dict_to_obj(station)
             station_objects.append(station_obj)
 
