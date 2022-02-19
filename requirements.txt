@@ -1,3 +1,4 @@
 pytest==6.2.5
 pytest-factoryboy==2.1.0
-ratelimit=2.2.1
+ratelimit==2.2.1
+requests==2.27.1
