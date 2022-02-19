@@ -3,12 +3,16 @@ from typing import Optional, List
 
 import edclasses.api_adapters.elite_bgs_adapter as bgs_adapter
 from . import enums
-from .utils import UniqueInstanceMixin, OneToManyRelation
+from .utils import UniqueInstanceMixin, OneToManyRelation, AutoRefreshMixin
 
 
-class System(UniqueInstanceMixin):
+class System(UniqueInstanceMixin, AutoRefreshMixin):
     keys = ("name",)
     registry = {}
+    adapter = bgs_adapter.EliteBgsSystemAdapter()
+    refreshed_fields = ("faction_branches", "stations")
+    EXPIRATION_TIME_MINUTES = 5
+
     _stations_relation = OneToManyRelation.create(
         parent_class_name="System", child_class_name="OrbitalStation"
     )
@@ -44,9 +48,13 @@ class System(UniqueInstanceMixin):
     )
 
 
-class Faction(UniqueInstanceMixin):
+class Faction(UniqueInstanceMixin, AutoRefreshMixin):
     keys = ("name",)
     registry = {}
+    adapter = bgs_adapter.EliteBgsFactionAdapter()
+    refreshed_fields = ("faction_branches",)
+    EXPIRATION_TIME_MINUTES = 5
+
     _faction_branches_relation = OneToManyRelation.create(
         parent_class_name="Faction", child_class_name="FactionBranch"
     )
@@ -69,13 +77,16 @@ class Faction(UniqueInstanceMixin):
     )
 
 
-class FactionBranch(UniqueInstanceMixin):
+class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
     keys = (
         "faction",
         "system",
     )
     registry = {}
     adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
+    refreshed_fields = ("influence", "stations")
+    EXPIRATION_TIME_MINUTES = 5
+
     _system_relation = OneToManyRelation.create(
         parent_class_name="System", child_class_name="FactionBranch"
     )
