@@ -8,6 +8,7 @@ from ..utils import return_first_match
 
 ELITE_BGS_CLIENT = EliteBgsClient()
 
+
 class EliteBgsAdapterBase:
     def __init__(self):
         self.client = ELITE_BGS_CLIENT
@@ -128,3 +129,22 @@ class EliteBgsFactionAdapter(EliteBgsAdapterBase):
             faction_branches.append(faction_branch_obj)
 
         return faction_branches
+
+
+class EliteBgsStationAdapter(EliteBgsAdapterBase):
+    def distance_to_arrival(self):
+        pass
+
+    def services(self, obj):
+        pass
+
+    def controlling_faction(self, obj):
+        data = self.client.stations(system=obj.system.name)
+
+        stations = data["docs"]
+        this_station_data = return_first_match(lambda station: station["name"].lower() == obj.name.lower(), stations)
+        faction_name = this_station_data["controlling_minor_faction_cased"]
+        faction = get_faction(faction_name)
+        faction_branch = get_faction_branch(faction, obj.system)
+
+        return faction_branch
