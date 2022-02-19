@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import edclasses
 
 
@@ -9,6 +11,13 @@ def get_orbital_station(
     services=None,
     controlling_faction=None,
 ):
+
+    if isinstance(system, str):
+        system = edclasses.System.create(name=system)
+
+    if distance_to_arrival and not isinstance(distance_to_arrival, Decimal):
+        distance_to_arrival = Decimal(distance_to_arrival)
+
     return edclasses.OrbitalStation.create(
         name=name,
         station_type=station_type,
@@ -24,6 +33,12 @@ def get_faction(name):
 
 
 def get_faction_branch(faction, system):
+    if isinstance(system, str):
+        system = edclasses.System.create(name=system)
+
+    if isinstance(faction, str):
+        faction = edclasses.Faction.create(name=faction)
+
     return edclasses.FactionBranch.create(faction=faction, system=system)
 
 

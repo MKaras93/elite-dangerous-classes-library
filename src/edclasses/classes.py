@@ -140,12 +140,16 @@ class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
     stations = property(fget=_stations_getter, fset=_stations_setter)
 
 
-class OrbitalStation(UniqueInstanceMixin):
+class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
     keys = (
         "name",
         "system",
     )
     registry = {}
+    adapter = bgs_adapter.EliteBgsStationAdapter()
+    refreshed_fields = ("controlling_faction", "distance_to_arrival", "services")
+    EXPIRATION_TIME_MINUTES = 5
+
     _system_relation = OneToManyRelation.create(
         parent_class_name="System", child_class_name="OrbitalStation"
     )
@@ -158,7 +162,7 @@ class OrbitalStation(UniqueInstanceMixin):
         name: str,
         station_type: enums.StationType,
         system: System,
-        distance_to_arrival: int,
+        distance_to_arrival: Optional[Decimal] = None,
         services: Optional[List] = None,
         controlling_faction=None,
     ):
@@ -190,3 +194,4 @@ class OrbitalStation(UniqueInstanceMixin):
     controlling_faction = property(
         fget=_controlling_faction_getter, fset=_controlling_faction_setter
     )
+

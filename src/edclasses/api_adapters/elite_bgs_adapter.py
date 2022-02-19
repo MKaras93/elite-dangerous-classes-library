@@ -8,6 +8,7 @@ from ..utils import return_first_match
 
 ELITE_BGS_CLIENT = EliteBgsClient()
 
+
 class EliteBgsAdapterBase:
     def __init__(self):
         self.client = ELITE_BGS_CLIENT
@@ -128,3 +129,42 @@ class EliteBgsFactionAdapter(EliteBgsAdapterBase):
             faction_branches.append(faction_branch_obj)
 
         return faction_branches
+
+
+class EliteBgsStationAdapter(EliteBgsAdapterBase):
+    def distance_to_arrival(self, obj):
+        distance_to_arrival = self._get_this_station_data(
+            obj=obj, key="distance_from_star"
+        )
+
+        if distance_to_arrival is not None:
+            return Decimal(distance_to_arrival)
+        return None
+
+    def services(self, obj):
+        services_data = self._get_this_station_data(obj=obj, key="services")
+
+        services = [
+            enums.StationService(service_dict["name_lower"])
+            for service_dict in services_data
+        ]
+        return services
+
+    def controlling_faction(self, obj):
+        controlling_faction_name = self._get_this_station_data(
+            obj=obj,
+            key="controlling_minor_faction_cased"
+        )
+        faction = get_faction(controlling_faction_name)
+        faction_branch = get_faction_branch(faction, obj.system)
+
+        return faction_branch
+
+    def _get_this_station_data(self, obj: "OrbitalStation", key: str):
+        data = self.client.stations(system=obj.system.name)
+
+        stations = data["docs"]
+        this_station_data = return_first_match(
+            lambda station: station["name"].lower() == obj.name.lower(), stations
+        )
+        return this_station_data[key]
