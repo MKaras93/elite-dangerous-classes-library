@@ -132,19 +132,26 @@ class EliteBgsFactionAdapter(EliteBgsAdapterBase):
 
 
 class EliteBgsStationAdapter(EliteBgsAdapterBase):
-    def distance_to_arrival(self):
-        pass
+    def distance_to_arrival(self, obj):
+        distance_to_arrival = self._get_this_station_data(obj=obj, key="distance_from_star")
+
+        if distance_to_arrival is not None:
+            return Decimal(distance_to_arrival)
+        return None
 
     def services(self, obj):
         pass
 
     def controlling_faction(self, obj):
+        controlling_faction_name = self._get_this_station_data(key="controlling_minor_faction_cased")
+        faction = get_faction(controlling_faction_name)
+        faction_branch = get_faction_branch(faction, obj.system)
+
+        return faction_branch
+
+    def _get_this_station_data(self, obj: "OrbitalStation", key: str):
         data = self.client.stations(system=obj.system.name)
 
         stations = data["docs"]
         this_station_data = return_first_match(lambda station: station["name"].lower() == obj.name.lower(), stations)
-        faction_name = this_station_data["controlling_minor_faction_cased"]
-        faction = get_faction(faction_name)
-        faction_branch = get_faction_branch(faction, obj.system)
-
-        return faction_branch
+        return this_station_data[key]
