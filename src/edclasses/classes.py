@@ -147,7 +147,7 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
     )
     registry = {}
     adapter = bgs_adapter.EliteBgsStationAdapter()
-    refreshed_fields = ("controlling_faction", "distance_to_arrival")
+    refreshed_fields = ("controlling_faction", "distance_to_arrival", "services")
     EXPIRATION_TIME_MINUTES = 5
 
     _system_relation = OneToManyRelation.create(
@@ -194,3 +194,4 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
     controlling_faction = property(
         fget=_controlling_faction_getter, fset=_controlling_faction_setter
     )
+
