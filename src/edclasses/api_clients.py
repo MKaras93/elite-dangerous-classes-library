@@ -4,6 +4,8 @@ from urllib import parse
 import requests
 from functools import lru_cache
 
+from ratelimit import limits
+
 
 class EliteBgsClient:
     API_URL = "https://elitebgs.app/api/ebgs/v5/"
@@ -11,6 +13,7 @@ class EliteBgsClient:
     def __init__(self):
         self.session = requests.Session()
 
+    @limits(calls=20, period=60)
     def _get_request(self, path="", **kwargs):
         url = parse.urljoin(self.API_URL, path)
         print(f"Shooting at {url} with params {kwargs}")
