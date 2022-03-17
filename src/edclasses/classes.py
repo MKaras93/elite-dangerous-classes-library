@@ -6,12 +6,15 @@ from . import enums
 from .utils import UniqueInstanceMixin, OneToManyRelation, AutoRefreshMixin
 
 
+EXPIRATION_TIME_MINUTES = 90
+
+
 class System(UniqueInstanceMixin, AutoRefreshMixin):
     keys = ("name",)
     registry = {}
     adapter = bgs_adapter.EliteBgsSystemAdapter()
-    refreshed_fields = ("faction_branches", "stations")
-    EXPIRATION_TIME_MINUTES = 5
+    refreshed_fields = ("faction_branches", "stations", "eddb_id",)
+    EXPIRATION_TIME_MINUTES = EXPIRATION_TIME_MINUTES
 
     _stations_relation = OneToManyRelation.create(
         parent_class_name="System", child_class_name="OrbitalStation"
@@ -20,7 +23,8 @@ class System(UniqueInstanceMixin, AutoRefreshMixin):
         parent_class_name="System", child_class_name="FactionBranch"
     )
 
-    def __init__(self, name: str, stations=None, faction_branches=None):
+    def __init__(self, name: str, stations=None, faction_branches=None, eddb_id=None):
+        self.eddb_id = eddb_id
         self.name = name
         self.stations = stations or []
         self.faction_branches = faction_branches or []
@@ -53,7 +57,7 @@ class Faction(UniqueInstanceMixin, AutoRefreshMixin):
     registry = {}
     adapter = bgs_adapter.EliteBgsFactionAdapter()
     refreshed_fields = ("faction_branches",)
-    EXPIRATION_TIME_MINUTES = 5
+    EXPIRATION_TIME_MINUTES = EXPIRATION_TIME_MINUTES
 
     _faction_branches_relation = OneToManyRelation.create(
         parent_class_name="Faction", child_class_name="FactionBranch"
@@ -85,7 +89,7 @@ class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
     registry = {}
     adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
     refreshed_fields = ("influence", "stations")
-    EXPIRATION_TIME_MINUTES = 5
+    EXPIRATION_TIME_MINUTES = EXPIRATION_TIME_MINUTES
 
     _system_relation = OneToManyRelation.create(
         parent_class_name="System", child_class_name="FactionBranch"
@@ -98,12 +102,12 @@ class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
     )
 
     def __init__(
-        self,
-        faction: Faction,
-        system: System,
-        is_main: bool = False,
-        influence: Decimal = None,
-        stations: List = None,
+            self,
+            faction: Faction,
+            system: System,
+            is_main: bool = False,
+            influence: Decimal = None,
+            stations: List = None,
     ):
         self.faction = faction
         self.system = system
@@ -148,7 +152,7 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
     registry = {}
     adapter = bgs_adapter.EliteBgsStationAdapter()
     refreshed_fields = ("controlling_faction", "distance_to_arrival", "services")
-    EXPIRATION_TIME_MINUTES = 5
+    EXPIRATION_TIME_MINUTES = EXPIRATION_TIME_MINUTES
 
     _system_relation = OneToManyRelation.create(
         parent_class_name="System", child_class_name="OrbitalStation"
@@ -158,13 +162,13 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
     )
 
     def __init__(
-        self,
-        name: str,
-        station_type: enums.StationType,
-        system: System,
-        distance_to_arrival: Optional[Decimal] = None,
-        services: Optional[List] = None,
-        controlling_faction=None,
+            self,
+            name: str,
+            station_type: enums.StationType,
+            system: System,
+            distance_to_arrival: Optional[Decimal] = None,
+            services: Optional[List] = None,
+            controlling_faction=None,
     ):
         self.name = name
         self.station_type = station_type.value
@@ -194,4 +198,3 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
     controlling_faction = property(
         fget=_controlling_faction_getter, fset=_controlling_faction_setter
     )
-
