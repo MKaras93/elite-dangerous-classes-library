@@ -1,5 +1,5 @@
 from decimal import Decimal
-from typing import List, Optional
+from typing import List
 
 from .utils import get_orbital_station, get_faction_branch, get_faction, get_system
 from .. import enums
@@ -81,8 +81,6 @@ class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
 class EliteBgsSystemAdapter(EliteBgsAdapterBase):
     def faction_branches(self, system: "System"):
         system_name_lower = system.name.lower()
-        # TODO: to save requests, it would be better to use client.system with factionDetails=True instead of factions,
-        # because it's also used in system.eddb_id
         data = self.client.factions(system=system.name)
         factions = data["docs"]
 
@@ -110,19 +108,6 @@ class EliteBgsSystemAdapter(EliteBgsAdapterBase):
             station_objects.append(station_obj)
 
         return station_objects
-
-    def eddb_id(self, system: "System") -> Optional[int]:
-        # TODO: this could be taken from self.client.factions or stations - this way we would get more data.
-        data = self.client.systems(name=system.name)
-        systems = data["docs"]
-        system_data = return_first_match(
-            lambda syst: syst["name_lower"] == system.name.lower(),
-            systems,
-        )
-        if system_data:
-            return system_data["eddb_id"]
-        return None
-
 
 
 class EliteBgsFactionAdapter(EliteBgsAdapterBase):
