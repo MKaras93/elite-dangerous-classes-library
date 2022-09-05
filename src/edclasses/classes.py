@@ -6,7 +6,7 @@ from . import enums
 from .utils import UniqueInstanceMixin, OneToManyRelation, AutoRefreshMixin
 
 
-EXPIRATION_TIME_MINUTES = 90
+EXPIRATION_TIME_MINUTES = 20
 
 
 class System(UniqueInstanceMixin, AutoRefreshMixin):
