@@ -16,7 +16,6 @@ class EliteBgsClient:
     @limits(calls=20, period=60)
     def _get_request(self, path="", **kwargs):
         url = parse.urljoin(self.API_URL, path)
-        print(f"Shooting at {url} with params {kwargs}")
         response = self.session.get(url, params=kwargs)
         return response.json()
 
