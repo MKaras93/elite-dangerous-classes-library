@@ -78,7 +78,7 @@ print(sol.stations) # request for the data about stations is being made.
 print(sol.stations) # data is already there, no request is being made
 ```
 
-Currently, once loaded, the data will stay there until the cache is cleared, however the code already has
+[//]: # (TODO: add info about how caching works)
 
 # Any words of advice?
 The library stores the whole data in the memory - which means, it might be expensive. I've designed it to work
