@@ -9,7 +9,7 @@ Developers can use these classes to speed up developing simple applications work
 Apart from the objects representation, it also provides an architecture to fill the objects with data from APIs.
 
 # How to install it?
-`pip install edclasses`
+`pip install elite-dangerous-classes-library`
 
 # How to use it?
 Here is an example of how it can be used. Note, that system name is all that needs to be provided. The rest is loaded
