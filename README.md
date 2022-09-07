@@ -3,10 +3,11 @@ Elite Dangerous Classes Library aka `edclasses`
 This README is a work in progress.
 
 # What is this library for?
-It's a library providing classes representing various objects in the game "Elite Dangerous" (systems, factions etc.)
-Developers can use these classes to speed up developing simple applications working with the game data.
+Data about systems, factions and stations in Elite Dangerous at your fingertips!
 
-Apart from the objects representation, it also provides an architecture to fill the objects with data from APIs.
+Elite Dangerous Classes Library provides classes representing various objects in the game "Elite Dangerous" (systems, factions etc.).
+
+Developers can use these classes to speed up developing simple applications working with the game data.
 
 # How to install it?
 `pip install elite-dangerous-classes-library`
@@ -15,16 +16,45 @@ Apart from the objects representation, it also provides an architecture to fill 
 Here is an example of how it can be used. Note, that system name is all that needs to be provided. The rest is loaded
 from the third party API.
 ```python
-from edclasses import System, Faction, FactionBranch, OrbitalStation
+>>> from edclasses import System
+>>> sol = System.create(name="Sol")
+>>> for faction_branch in sol.faction_branches:
+...    print(f"{faction_branch} has {len(faction_branch.stations)} stations.")
 
-sol = System.create(name="Sol")
+Faction 'Sol Constitution Party' in System 'Sol' has 0 stations.
+Faction 'Federal Congress' in System 'Sol' has 1 stations.
+Faction 'Sol Nationalists' in System 'Sol' has 0 stations.
+Faction 'Sol Workers' Party' in System 'Sol' has 3 stations.
+Faction 'Mother Gaia' in System 'Sol' has 6 stations.
+Faction 'Aegis Core' in System 'Sol' has 0 stations.
+```
 
-for faction_branch in sol.faction_branches:
-    print(f"{faction_branch} has {len(faction_branch.stations)}.")
+Generally, even though it's possible to initialize objects directly, it's advised to use the `create` method. Here is why:
+
+```python
+>>> from edclasses import System
+
+# trying to create the same object directly causes InstanceAlreadyExists error
+>>> system = System("Colonia")
+>>> system_2 = System("Colonia")
+Error: edclasses.utils.InstanceAlreadyExists
+
+# using "create" method makes sure you get the same instance of System, so you don't have to worry about creating the
+# same object twice in two different places:
+>>> system = System.create(name="Colonia")
+>>> system_2 = System.create(name="Colonia")
+>>> system is system_2
+True
 ```
 
 And here is an example of a function which is meant to find a station with mission for particular faction_branch:
 ```python
+
+# missions.py:
+
+import random
+from edclasses import enums
+
 def find_mission(
     faction_branch
 ):
@@ -36,11 +66,18 @@ def find_mission(
             return {"faction_branch": faction_branch, "station": station}
     return None
 
-my_faction_branch = settings.MY_FACTION_BRANCH
-mission_data = find_mission(my_faction_branch)
-mission_station = mission_data["station"]
-print(f"TRANSMISSION RECIEVED")
-print(f"Commander, your presence is required at {mission_station} in the {mission_station.system}!")
+>>> from missions import find_mission
+>>> from edclasses import FactionBranch, Faction, System
+>>> my_faction = Faction.create(name="Mother Gaia")
+>>> my_system = System.create(name="Sol")
+>>> my_faction_branch = FactionBranch.create(faction=my_faction, system=my_system)
+>>> mission_data = find_mission(my_faction_branch)
+>>> mission_station = mission_data["station"]
+>>> print(f"TRANSMISSION RECIEVED")
+>>> print(f"Commander, your presence is required at {mission_station} in the {mission_station.system}!")
+
+TRANSMISSION RECIEVED
+Commander, your presence is required at Ocellus 'Columbus' in the System 'Sol'!
 ```
 
 Generally the library should let you focus on the logic of your application, instead of dealing with Elite Dangerous
@@ -53,9 +90,9 @@ Currently the following objects are represented:
 - FactionBranch - representation of a faction within a single system.
 - OrbitalStation - station inside a system.
 
-The classes are not a full representation - such objects would be expensive to work with, and probably noone would need
-that. However, they can be easily extended if you need to add a particular attribute. They will definitely be extended
-gradually in the future, as new needs show up.
+The classes are not a full representation - such objects would be expensive to work with. However, they can be easily
+extended if you need to add a particular attribute. They will definitely be extended gradually in the future, as new
+needs show up.
 
 # How are relations between objects kept?
 There is a special class representing parent-children relation (one-to-many). It takes care of updating both sides of
