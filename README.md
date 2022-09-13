@@ -10,7 +10,7 @@ Elite Dangerous Classes Library provides classes representing various objects in
 Developers can use these classes to speed up developing simple applications working with the game data.
 
 # How to install it?
-`pip install edclasses`
+`pip install elite-dangerous-classes-library`
 
 # How to use it?
 Here is an example of how it can be used. Note, that system name is all that needs to be provided. The rest is loaded
