@@ -147,6 +147,9 @@ class AutoRefreshMixin:
     adapter = None
     EXPIRATION_TIME_MINUTES = 60
 
+    def _set_adapter(self, **kwargs):
+        self.adapter = kwargs.get("adapter", self.adapter)
+
     def _get_new_expiration_registry(self):
         get_atr = super().__getattribute__
         expiration_registry = {item: None for item in get_atr("refreshed_fields")}

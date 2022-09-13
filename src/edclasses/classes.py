@@ -23,11 +23,12 @@ class System(UniqueInstanceMixin, AutoRefreshMixin):
         parent_class_name="System", child_class_name="FactionBranch"
     )
 
-    def __init__(self, name: str, stations=None, faction_branches=None, eddb_id=None):
+    def __init__(self, name: str, stations=None, faction_branches=None, eddb_id=None, **kwargs):
         self.eddb_id = eddb_id
         self.name = name
         self.stations = stations or []
         self.faction_branches = faction_branches or []
+        self._set_adapter(**kwargs)
         super().__init__()
 
     def __repr__(self):
@@ -63,8 +64,9 @@ class Faction(UniqueInstanceMixin, AutoRefreshMixin):
         parent_class_name="Faction", child_class_name="FactionBranch"
     )
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, **kwargs):
         self.name = name
+        self._set_adapter(**kwargs)
         super().__init__()
 
     def __repr__(self):
@@ -108,12 +110,14 @@ class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
             is_main: bool = False,
             influence: Decimal = None,
             stations: List = None,
+            **kwargs,
     ):
         self.faction = faction
         self.system = system
         self.is_main = is_main
         self.influence = influence
         self.stations = stations or []
+        self._set_adapter(**kwargs)
         super().__init__()
 
     def __repr__(self):
@@ -169,6 +173,7 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
             distance_to_arrival: Optional[Decimal] = None,
             services: Optional[List] = None,
             controlling_faction=None,
+            **kwargs,
     ):
         self.name = name
         self.station_type = station_type.value
@@ -176,6 +181,7 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
         self.distance_to_arrival = distance_to_arrival
         self.services = services or []
         self.controlling_faction = None or controlling_faction
+        self._set_adapter(**kwargs)
         super().__init__()
 
     def __repr__(self):
