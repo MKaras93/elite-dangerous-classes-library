@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "elite-dangerous-classes-library"
-version = "0.0.4"
+version = "0.0.5"
 description = "Library representing various objects in Elite Dangerous"
 readme = "README.md"
 authors = [{ name = "Michał Karaś", email = "mjkaras93@gmail.com" }]
