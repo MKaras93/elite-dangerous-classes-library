@@ -1,4 +1,4 @@
-from edclasses import OneToManyRelation
+from ..utils import OneToManyRelation
 
 
 class Parent:

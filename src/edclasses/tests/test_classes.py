@@ -1,4 +1,12 @@
-from .factories.classes_factories import *
+from .. import enums
+from ..classes import System, OrbitalStation
+from ..tests.factories.classes_factories import (
+    SystemFactory,
+    OrbitalStationFactory,
+    MOCKED_ADAPTER,
+    FactionBranchFactory,
+    FactionFactory,
+)
 
 
 class TestClassesRelations:
@@ -14,6 +22,14 @@ class TestClassesRelations:
         assert station.system == system
         assert system.stations == [station]
 
+    def test_station_factory(self):
+        station = OrbitalStationFactory()
+
+        assert isinstance(station.system, System)
+        assert isinstance(station.controlling_faction, FactionBranch)
+        assert station.distance_to_arrival == 100
+        assert station.services == []
+
     def test_station_system_relation_when_station_is_created_with_ready_system(self):
         system = SystemFactory()
         station = OrbitalStationFactory(system=system)
@@ -27,7 +43,7 @@ class TestClassesRelations:
         station = OrbitalStation.create(
             system=system,
             name="Super Station",
-            station_type=StationType.STATION,
+            station_type=enums.StationType.STATION,
             adapter=MOCKED_ADAPTER,
         )
 

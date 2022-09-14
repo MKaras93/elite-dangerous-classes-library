@@ -1,6 +1,6 @@
 import datetime
 from collections import defaultdict
-from typing import Tuple, List
+from typing import List
 
 
 def return_first_match(func, items):
@@ -145,7 +145,11 @@ class InstanceAlreadyExists(Exception):
 class AutoRefreshMixin:
     refreshed_fields = tuple()
     adapter = None
-    EXPIRATION_TIME_MINUTES = 60
+    EXPIRATION_TIME_MINUTES = 15
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self._set_adapter(**kwargs)
 
     def _set_adapter(self, **kwargs):
         self.adapter = kwargs.get("adapter", self.adapter)
