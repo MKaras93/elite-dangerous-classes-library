@@ -124,7 +124,6 @@ class EliteBgsSystemAdapter(EliteBgsAdapterBase):
         return None
 
 
-
 class EliteBgsFactionAdapter(EliteBgsAdapterBase):
     def faction_branches(self, faction_obj):
         data = self.client.factions(name=faction_obj.name)
@@ -167,8 +166,7 @@ class EliteBgsStationAdapter(EliteBgsAdapterBase):
 
     def controlling_faction(self, obj):
         controlling_faction_name = self._get_this_station_data(
-            obj=obj,
-            key="controlling_minor_faction_cased"
+            obj=obj, key="controlling_minor_faction_cased"
         )
         faction = get_faction(controlling_faction_name)
         faction_branch = get_faction_branch(faction, obj.system)

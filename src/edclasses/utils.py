@@ -147,6 +147,9 @@ class AutoRefreshMixin:
     adapter = None
     EXPIRATION_TIME_MINUTES = 60
 
+    def _set_adapter(self, **kwargs):
+        self.adapter = kwargs.get("adapter", self.adapter)
+
     def _get_new_expiration_registry(self):
         get_atr = super().__getattribute__
         expiration_registry = {item: None for item in get_atr("refreshed_fields")}
@@ -165,12 +168,16 @@ class AutoRefreshMixin:
         except KeyError:
             return get_atr(item)
 
-        is_expired = expiration_date is None or expiration_date <= datetime.datetime.utcnow()
+        is_expired = (
+            expiration_date is None or expiration_date <= datetime.datetime.utcnow()
+        )
 
         if is_expired:
             adapter = get_atr("adapter")
             refresh_func = getattr(adapter, item)
-            value = refresh_func(self)  # TO CHECK: this will call getattribute again, can lead to loops
+            value = refresh_func(
+                self
+            )  # TO CHECK: this will call getattribute again, can lead to loops
 
             expiration_registry[item] = datetime.datetime.utcnow() + datetime.timedelta(
                 minutes=get_atr("EXPIRATION_TIME_MINUTES")
