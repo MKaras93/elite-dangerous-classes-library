@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-import edclasses
+# TODO: Fix ugly imports
 
 
 def get_orbital_station(
@@ -11,14 +11,15 @@ def get_orbital_station(
     services=None,
     controlling_faction=None,
 ):
+    from edclasses import System, OrbitalStation
 
     if isinstance(system, str):
-        system = edclasses.System.create(name=system)
+        system = System.create(name=system)
 
     if distance_to_arrival and not isinstance(distance_to_arrival, Decimal):
         distance_to_arrival = Decimal(distance_to_arrival)
 
-    return edclasses.OrbitalStation.create(
+    return OrbitalStation.create(
         name=name,
         station_type=station_type,
         system=system,
@@ -29,18 +30,24 @@ def get_orbital_station(
 
 
 def get_faction(name):
-    return edclasses.Faction.create(name=name)
+    from edclasses import Faction
+
+    return Faction.create(name=name)
 
 
 def get_faction_branch(faction, system):
+    from edclasses import System, Faction, FactionBranch
+
     if isinstance(system, str):
-        system = edclasses.System.create(name=system)
+        system = System.create(name=system)
 
     if isinstance(faction, str):
-        faction = edclasses.Faction.create(name=faction)
+        faction = Faction.create(name=faction)
 
-    return edclasses.FactionBranch.create(faction=faction, system=system)
+    return FactionBranch.create(faction=faction, system=system)
 
 
 def get_system(name):
-    return edclasses.System.create(name=name)
+    from edclasses import System
+
+    return System.create(name=name)

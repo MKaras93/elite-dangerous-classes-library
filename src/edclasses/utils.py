@@ -1,6 +1,6 @@
 import datetime
 from collections import defaultdict
-from typing import Tuple, List
+from typing import List
 
 
 def return_first_match(func, items):

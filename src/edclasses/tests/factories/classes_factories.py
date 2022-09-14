@@ -1,8 +1,8 @@
 import factory
 
-from edclasses.tests.mocked_adapter import MockedAdapter
-from edclasses import SystemModel, FactionModel, FactionBranchModel, OrbitalStationModel
-from edclasses.enums import StationType
+from ...tests.mocked_adapter import MockedAdapter
+from ...models import SystemModel, FactionModel, FactionBranchModel, OrbitalStationModel
+from ...enums import StationType
 
 MOCKED_ADAPTER = MockedAdapter()
 

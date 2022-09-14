@@ -1,5 +1,12 @@
-from .factories.classes_factories import *
-from edclasses import *
+from .. import enums
+from ..classes import System, OrbitalStation
+from ..tests.factories.classes_factories import (
+    SystemFactory,
+    OrbitalStationFactory,
+    MOCKED_ADAPTER,
+    FactionBranchFactory,
+    FactionFactory,
+)
 
 
 class TestClassesRelations:
@@ -36,7 +43,7 @@ class TestClassesRelations:
         station = OrbitalStation.create(
             system=system,
             name="Super Station",
-            station_type=StationType.STATION,
+            station_type=enums.StationType.STATION,
             adapter=MOCKED_ADAPTER,
         )
 
