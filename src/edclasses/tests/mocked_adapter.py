@@ -13,4 +13,5 @@ class MockedAdapter:
         def _return_value_from_obj(*args):
             obj = next(iter(args))
             return getattr(obj, getter_name)()
+
         return _return_value_from_obj
