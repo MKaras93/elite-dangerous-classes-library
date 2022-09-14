@@ -6,20 +6,9 @@ from . import enums
 from .utils import UniqueInstanceMixin, OneToManyRelation, AutoRefreshMixin
 
 
-EXPIRATION_TIME_MINUTES = 20
-
-
-class System(UniqueInstanceMixin, AutoRefreshMixin):
+class SystemModel(UniqueInstanceMixin):
     keys = ("name",)
     registry = {}
-    adapter = bgs_adapter.EliteBgsSystemAdapter()
-    refreshed_fields = (
-        "faction_branches",
-        "stations",
-        "eddb_id",
-    )
-    EXPIRATION_TIME_MINUTES = EXPIRATION_TIME_MINUTES
-
     _stations_relation = OneToManyRelation.create(
         parent_class_name="System",
         child_class_name="OrbitalStation",
@@ -41,7 +30,6 @@ class System(UniqueInstanceMixin, AutoRefreshMixin):
         self.name = name
         self.stations = stations or []
         self.faction_branches = faction_branches or []
-        self._set_adapter(**kwargs)
         super().__init__()
 
     def __repr__(self):
@@ -69,12 +57,9 @@ class System(UniqueInstanceMixin, AutoRefreshMixin):
     )
 
 
-class Faction(UniqueInstanceMixin, AutoRefreshMixin):
+class FactionModel(UniqueInstanceMixin):
     keys = ("name",)
     registry = {}
-    adapter = bgs_adapter.EliteBgsFactionAdapter()
-    refreshed_fields = ("faction_branches",)
-    EXPIRATION_TIME_MINUTES = EXPIRATION_TIME_MINUTES
 
     _faction_branches_relation = OneToManyRelation.create(
         parent_class_name="Faction",
@@ -87,7 +72,6 @@ class Faction(UniqueInstanceMixin, AutoRefreshMixin):
         **kwargs,
     ):
         self.name = name
-        self._set_adapter(**kwargs)
         super().__init__()
 
     def __repr__(self):
@@ -105,15 +89,12 @@ class Faction(UniqueInstanceMixin, AutoRefreshMixin):
     )
 
 
-class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
+class FactionBranchModel(UniqueInstanceMixin):
     keys = (
         "faction",
         "system",
     )
     registry = {}
-    adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
-    refreshed_fields = ("influence", "stations")
-    EXPIRATION_TIME_MINUTES = EXPIRATION_TIME_MINUTES
 
     _system_relation = OneToManyRelation.create(
         parent_class_name="System",
@@ -130,8 +111,8 @@ class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
 
     def __init__(
         self,
-        faction: Faction,
-        system: System,
+        faction: FactionModel,
+        system: SystemModel,
         is_main: bool = False,
         influence: Decimal = None,
         stations: List = None,
@@ -142,7 +123,6 @@ class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
         self.is_main = is_main
         self.influence = influence
         self.stations = stations or []
-        self._set_adapter(**kwargs)
         super().__init__()
 
     def __repr__(self):
@@ -182,20 +162,12 @@ class FactionBranch(UniqueInstanceMixin, AutoRefreshMixin):
     )
 
 
-class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
+class OrbitalStationModel(UniqueInstanceMixin):
     keys = (
         "name",
         "system",
     )
     registry = {}
-    adapter = bgs_adapter.EliteBgsStationAdapter()
-    refreshed_fields = (
-        "controlling_faction",
-        "distance_to_arrival",
-        "services",
-    )
-    EXPIRATION_TIME_MINUTES = EXPIRATION_TIME_MINUTES
-
     _system_relation = OneToManyRelation.create(
         parent_class_name="System",
         child_class_name="OrbitalStation",
@@ -209,7 +181,7 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
         self,
         name: str,
         station_type: enums.StationType,
-        system: System,
+        system: SystemModel,
         distance_to_arrival: Optional[Decimal] = None,
         services: Optional[List] = None,
         controlling_faction=None,
@@ -221,7 +193,6 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
         self.distance_to_arrival = distance_to_arrival
         self.services = services or []
         self.controlling_faction = None or controlling_faction
-        self._set_adapter(**kwargs)
         super().__init__()
 
     def __repr__(self):
@@ -250,4 +221,32 @@ class OrbitalStation(UniqueInstanceMixin, AutoRefreshMixin):
     controlling_faction = property(
         fget=_controlling_faction_getter,
         fset=_controlling_faction_setter,
+    )
+
+
+class System(AutoRefreshMixin, SystemModel):
+    adapter = bgs_adapter.EliteBgsSystemAdapter()
+    refreshed_fields = (
+        "faction_branches",
+        "stations",
+        "eddb_id",
+    )
+
+
+class Faction(AutoRefreshMixin, FactionModel):
+    adapter = bgs_adapter.EliteBgsFactionAdapter()
+    refreshed_fields = ("faction_branches",)
+
+
+class FactionBranch(AutoRefreshMixin, FactionBranchModel):
+    adapter = bgs_adapter.EliteBgsFactionBranchAdapter()
+    refreshed_fields = ("influence", "stations")
+
+
+class OrbitalStation(AutoRefreshMixin, OrbitalStationModel):
+    adapter = bgs_adapter.EliteBgsStationAdapter()
+    refreshed_fields = (
+        "controlling_faction",
+        "distance_to_arrival",
+        "services",
     )

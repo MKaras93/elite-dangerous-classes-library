@@ -1,8 +1,8 @@
 import factory
 
-from ..mocked_adapter import MockedAdapter
-from ...classes import System, Faction, FactionBranch, OrbitalStation
-from ...enums import StationType
+from edclasses.tests.mocked_adapter import MockedAdapter
+from edclasses import SystemModel, FactionModel, FactionBranchModel, OrbitalStationModel
+from edclasses.enums import StationType
 
 MOCKED_ADAPTER = MockedAdapter()
 
@@ -13,21 +13,21 @@ class EDModelFactoryBase(factory.Factory):
 
 class SystemFactory(EDModelFactoryBase):
     class Meta:
-        model = System
+        model = SystemModel
 
     name = factory.Sequence(lambda n: f"System {n}")
 
 
 class FactionFactory(EDModelFactoryBase):
     class Meta:
-        model = Faction
+        model = FactionModel
 
     name = factory.Sequence(lambda n: f"Faction {n}")
 
 
 class FactionBranchFactory(EDModelFactoryBase):
     class Meta:
-        model = FactionBranch
+        model = FactionBranchModel
 
     faction = factory.SubFactory(FactionFactory)
     system = factory.SubFactory(SystemFactory)
@@ -38,7 +38,7 @@ class FactionBranchFactory(EDModelFactoryBase):
 
 class OrbitalStationFactory(EDModelFactoryBase):
     class Meta:
-        model = OrbitalStation
+        model = OrbitalStationModel
 
     name = factory.Sequence(lambda n: f"Orbital Station {n}")
     station_type = StationType.STATION

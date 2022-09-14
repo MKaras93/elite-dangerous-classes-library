@@ -1,4 +1,5 @@
 from .factories.classes_factories import *
+from edclasses import *
 
 
 class TestClassesRelations:
@@ -21,7 +22,6 @@ class TestClassesRelations:
         assert isinstance(station.controlling_faction, FactionBranch)
         assert station.distance_to_arrival == 100
         assert station.services == []
-
 
     def test_station_system_relation_when_station_is_created_with_ready_system(self):
         system = SystemFactory()
