@@ -99,6 +99,56 @@ There is a special class representing parent-children relation (one-to-many). It
 the relation. For example, when OrbitalStation instance changes its attribute `controlling_faction`, the attribute `stations` on the
 FactionBranch instance is also updated, and vice versa. The parent is kept in sync with the children.
 
+# Can I use the classes without external data source?
+From now on - Yes! The whole adapter engine has been extracted, so now, apart from full auto-refreshed classes available
+in the `classes` module, you can use the "offline" Model classes available in the `models` module.
+
+## Model classes
+They represent objects (factions, systems, faciton branches and stations) and keep the relation between them, but they
+are static objects, not connected to any external data source. If you use these classes, they will only store the data
+you have filled them with. For example. creating a SystemModel of system Sol will no longer let you fetch data about
+"Sol" system:
+
+```python
+from edclasses.models import SystemModel
+
+sol_model = SystemModel.create(name="Sol")
+# the model has the same attributes ed class has, however it will not look for data anywhere else:
+
+print(sol_model.stations)
+[]
+# A normal instance of System class would at this point query API Adapter for data, but the model doesn't do that.
+```
+
+### Advantages
+Is there anything special about the model class itself if it doesn't fetch the data? Well, yes - relations. The model
+classes are meant to work like a database - keep links between different objects in your program. Look at this example:
+
+```python
+>>> from edclasses.models import SystemModel, FactionModel, FactionBranchModel
+
+>>> sol = SystemModel.create(name="Sol")
+>>> sol.faction_branches
+[]
+
+>>> faction = FactionModel.create(name="Some Faction")
+>>> faction.faction_branches
+[]
+
+>>> faction_branch = FactionBranchModel.create(faction=faction, system=sol)
+# at these point the relations between are updated:
+
+>>> sol.faction_branches
+[Some Faction in Sol]
+
+>>> faction.faction_branches
+[Some Faction in Sol]
+```
+
+How can this be useful? Even though `edlasses` have been designed to be used with the API, maybe you have some idea
+to create a whole universe simulation based on a CSV file on some Database of your own? This objects should make it
+possible to do so without writing your own classes.
+
 # Where is the data coming from?
 The library comes with a simple adapter to a magnificent API at www.elitebgs.app (seriously, they made a great job, you
 should check it out if you haven't already).
@@ -129,6 +179,8 @@ factions of interests. If your app is too data-hungry, it will result in the fol
 # Can I use different data sources? Can I add more fields?
 Yes, the provided EliteBgsApiAdapter is just an example. You can write a similar adapter, or extend this one, and then
 connect it to the proper class in edclasses. I will add a more detailed tutorial in the future.
+
+You can also use the model classes (check out ## model classes above) and create your own data source system.
 
 # Why don't you XYZ:
 The project is in very early phase. Have any idea? Please open an issue, I would be glad to discuss.
