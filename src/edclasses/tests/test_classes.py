@@ -14,6 +14,15 @@ class TestClassesRelations:
         assert station.system == system
         assert system.stations == [station]
 
+    def test_station_factory(self):
+        station = OrbitalStationFactory()
+
+        assert isinstance(station.system, System)
+        assert isinstance(station.controlling_faction, FactionBranch)
+        assert station.distance_to_arrival == 100
+        assert station.services == []
+
+
     def test_station_system_relation_when_station_is_created_with_ready_system(self):
         system = SystemFactory()
         station = OrbitalStationFactory(system=system)
