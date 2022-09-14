@@ -1,31 +1,24 @@
 import factory
 
-from ...tests.mocked_adapter import MockedAdapter
 from ...models import SystemModel, FactionModel, FactionBranchModel, OrbitalStationModel
 from ...enums import StationType
 
-MOCKED_ADAPTER = MockedAdapter()
 
-
-class EDModelFactoryBase(factory.Factory):
-    adapter = MOCKED_ADAPTER
-
-
-class SystemFactory(EDModelFactoryBase):
+class SystemFactory(factory.Factory):
     class Meta:
         model = SystemModel
 
     name = factory.Sequence(lambda n: f"System {n}")
 
 
-class FactionFactory(EDModelFactoryBase):
+class FactionFactory(factory.Factory):
     class Meta:
         model = FactionModel
 
     name = factory.Sequence(lambda n: f"Faction {n}")
 
 
-class FactionBranchFactory(EDModelFactoryBase):
+class FactionBranchFactory(factory.Factory):
     class Meta:
         model = FactionBranchModel
 
@@ -36,7 +29,7 @@ class FactionBranchFactory(EDModelFactoryBase):
     influence = 50
 
 
-class OrbitalStationFactory(EDModelFactoryBase):
+class OrbitalStationFactory(factory.Factory):
     class Meta:
         model = OrbitalStationModel
 
