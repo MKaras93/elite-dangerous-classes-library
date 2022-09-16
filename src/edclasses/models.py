@@ -115,6 +115,9 @@ class FactionBranchModel(UniqueInstanceMixin):
         is_main: bool = False,
         influence: Decimal = None,
         stations: List = None,
+        active_states: List = None,
+        pending_states: List = None,
+        recovering_states: List = None,
         **kwargs,
     ):
         self.faction = faction
@@ -122,6 +125,9 @@ class FactionBranchModel(UniqueInstanceMixin):
         self.is_main = is_main
         self.influence = influence
         self.stations = stations or []
+        self.active_states = active_states or []
+        self.pending_states = pending_states or []
+        self.recovering_states = recovering_states or []
         super().__init__()
 
     def __repr__(self):

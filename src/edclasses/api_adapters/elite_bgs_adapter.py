@@ -41,6 +41,23 @@ class EliteBgsAdapterBase:
 
 
 class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
+    @staticmethod
+    def _get_faction_data_from_response(response: dict, faction_name: str):
+        factions = response.get("docs", [])
+        faction_data = return_first_match(
+            lambda fact: fact["name"].lower() == faction_name.lower(), factions
+        )
+        return faction_data
+
+    @staticmethod
+    def _get_faction_presence_from_faction_data(faction_data: dict, system_name: str):
+        faction_presence_list = faction_data["faction_presence"]
+        faction_presence = return_first_match(
+            lambda fact: fact["system_name_lower"] == system_name.lower(),
+            faction_presence_list,
+        )
+        return faction_presence
+
     def influence(self, faction_branch: "FactionBranch") -> Decimal:
         faction_name = faction_branch.faction.name
         data = self.client.factions(system=faction_branch.system.name)
@@ -77,6 +94,26 @@ class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
 
         return station_objects
 
+    def _get_states(self, faction_branch, states_key):
+        faction_name = faction_branch.faction.name
+        system_name = faction_branch.system.name
+        response = self.client.factions(system=system_name)
+        faction_data = self._get_faction_data_from_response(response, faction_name)
+        faction_presence = self._get_faction_presence_from_faction_data(faction_data, system_name)
+        active_states = faction_presence.get(states_key, [])
+        return [
+            enums.FactionState(state["state"])
+            for state in active_states
+        ]
+
+    def active_states(self, obj):
+        return self._get_states(obj, "active_states")
+
+    def pending_states(self, obj):
+        return self._get_states(obj, "pending_states")
+
+    def recovering_states(self, obj):
+        return self._get_states(obj, "recovering_states")
 
 class EliteBgsSystemAdapter(EliteBgsAdapterBase):
     def faction_branches(self, system: "System"):
@@ -181,3 +218,4 @@ class EliteBgsStationAdapter(EliteBgsAdapterBase):
             lambda station: station["name"].lower() == obj.name.lower(), stations
         )
         return this_station_data[key]
+

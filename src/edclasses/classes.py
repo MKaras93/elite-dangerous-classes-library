@@ -27,6 +27,9 @@ class FactionBranch(AutoRefreshMixin, FactionBranchModel):
     refreshed_fields = (
         "influence",
         "stations",
+        "active_states",
+        "pending_states",
+        "recovering_states",
     )
 
 
