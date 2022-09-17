@@ -51,6 +51,7 @@ class StationService(Enum):
     REARM = "rearm"
     BARTENDER = "bartender"
     VISTAGENOMICS = "vistagenomics"
+    ON_DOCK_MISSION = "ondockmission"
 
 
 class State(Enum):
