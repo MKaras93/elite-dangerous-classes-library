@@ -53,10 +53,10 @@ class StationService(Enum):
     VISTAGENOMICS = "vistagenomics"
 
 
-class FactionState(Enum):
+class State(Enum):
     EXPANSION = "expansion"
     BOOM = "boom"
-    CIVIL_LIBERY = "civilliberty"
+    CIVIL_LIBERTY = "civilliberty"
     WAR = "war"
     PIRATE_ATTACK = "pirateattack"
     PUBLIC_HOLIDAY = "publicholiday"

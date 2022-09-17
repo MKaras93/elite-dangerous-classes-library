@@ -39,4 +39,5 @@ class OrbitalStation(AutoRefreshMixin, OrbitalStationModel):
         "controlling_faction",
         "distance_to_arrival",
         "services",
+        "state",
     )

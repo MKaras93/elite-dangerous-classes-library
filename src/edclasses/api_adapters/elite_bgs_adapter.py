@@ -102,7 +102,7 @@ class EliteBgsFactionBranchAdapter(EliteBgsAdapterBase):
         faction_presence = self._get_faction_presence_from_faction_data(faction_data, system_name)
         active_states = faction_presence.get(states_key, [])
         return [
-            enums.FactionState(state["state"])
+            enums.State(state["state"])
             for state in active_states
         ]
 
@@ -209,6 +209,11 @@ class EliteBgsStationAdapter(EliteBgsAdapterBase):
         faction_branch = get_faction_branch(faction, obj.system)
 
         return faction_branch
+
+    def state(self, obj):
+        state_data = self._get_this_station_data(obj=obj, key="state")
+        state = enums.State(state_data) if state_data != "none" else None
+        return state
 
     def _get_this_station_data(self, obj: "OrbitalStation", key: str):
         data = self.client.stations(system=obj.system.name)
