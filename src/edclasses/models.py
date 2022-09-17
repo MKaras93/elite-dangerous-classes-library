@@ -227,3 +227,7 @@ class OrbitalStationModel(UniqueInstanceMixin):
         fget=_controlling_faction_getter,
         fset=_controlling_faction_setter,
     )
+
+    @property
+    def distance_to_arrival_rounded(self):
+        return int(round(self.distance_to_arrival, -2)) if self.distance_to_arrival is not None else None
