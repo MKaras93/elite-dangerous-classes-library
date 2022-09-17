@@ -16,6 +16,18 @@ class StationType(Enum):
     # MEGASHIP = "mega ship" # TODO: handle megaships
 
 
+class LandingPadSizes(Enum):
+    SMALL = 1
+    MEDIUM = 2
+    LARGE = 3
+
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+
 class StationService(Enum):
     PIONEERSUPPLIES = "pioneersupplies"
     SHOP = "shop"

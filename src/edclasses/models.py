@@ -181,6 +181,7 @@ class OrbitalStationModel(UniqueInstanceMixin):
         parent_class_name="FactionBranch",
         child_class_name="OrbitalStation",
     )
+    landing_pads_map = {enums.StationType.OUTPOST: enums.LandingPadSizes.MEDIUM}
 
     def __init__(
         self,
@@ -193,7 +194,7 @@ class OrbitalStationModel(UniqueInstanceMixin):
         **kwargs,
     ):
         self.name = name
-        self.station_type = station_type.value
+        self.station_type = station_type
         self.system = system
         self.distance_to_arrival = distance_to_arrival
         self.services = services or []
@@ -201,7 +202,7 @@ class OrbitalStationModel(UniqueInstanceMixin):
         super().__init__()
 
     def __repr__(self):
-        return f"{self.station_type.title()} '{self.name}'"
+        return f"{self.station_type.value.title()} '{self.name}'"
 
     def _system_setter(self, value):
         self._system_relation.set_for_child(self, value)
@@ -231,3 +232,7 @@ class OrbitalStationModel(UniqueInstanceMixin):
     @property
     def distance_to_arrival_rounded(self):
         return int(round(self.distance_to_arrival, -2)) if self.distance_to_arrival is not None else None
+
+    @property
+    def max_landing_pad(self):
+        return self.landing_pads_map.get(self.station_type, enums.LandingPadSizes.LARGE)
