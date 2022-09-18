@@ -191,6 +191,7 @@ class OrbitalStationModel(UniqueInstanceMixin):
         distance_to_arrival: Optional[Decimal] = None,
         services: Optional[List] = None,
         controlling_faction=None,
+        state=None,
         **kwargs,
     ):
         self.name = name
@@ -199,6 +200,7 @@ class OrbitalStationModel(UniqueInstanceMixin):
         self.distance_to_arrival = distance_to_arrival
         self.services = services or []
         self.controlling_faction = None or controlling_faction
+        self.state = state
         super().__init__()
 
     def __repr__(self):
@@ -231,7 +233,11 @@ class OrbitalStationModel(UniqueInstanceMixin):
 
     @property
     def distance_to_arrival_rounded(self):
-        return int(round(self.distance_to_arrival, -2)) if self.distance_to_arrival is not None else None
+        return (
+            int(round(self.distance_to_arrival, -2))
+            if self.distance_to_arrival is not None
+            else None
+        )
 
     @property
     def max_landing_pad(self):
