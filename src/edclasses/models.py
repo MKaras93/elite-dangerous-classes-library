@@ -115,6 +115,9 @@ class FactionBranchModel(UniqueInstanceMixin):
         is_main: bool = False,
         influence: Decimal = None,
         stations: List = None,
+        active_states: List = None,
+        pending_states: List = None,
+        recovering_states: List = None,
         **kwargs,
     ):
         self.faction = faction
@@ -122,6 +125,9 @@ class FactionBranchModel(UniqueInstanceMixin):
         self.is_main = is_main
         self.influence = influence
         self.stations = stations or []
+        self.active_states = active_states or []
+        self.pending_states = pending_states or []
+        self.recovering_states = recovering_states or []
         super().__init__()
 
     def __repr__(self):
@@ -175,6 +181,7 @@ class OrbitalStationModel(UniqueInstanceMixin):
         parent_class_name="FactionBranch",
         child_class_name="OrbitalStation",
     )
+    landing_pads_map = {enums.StationType.OUTPOST: enums.LandingPadSizes.MEDIUM}
 
     def __init__(
         self,
@@ -184,18 +191,20 @@ class OrbitalStationModel(UniqueInstanceMixin):
         distance_to_arrival: Optional[Decimal] = None,
         services: Optional[List] = None,
         controlling_faction=None,
+        state=None,
         **kwargs,
     ):
         self.name = name
-        self.station_type = station_type.value
+        self.station_type = station_type
         self.system = system
         self.distance_to_arrival = distance_to_arrival
         self.services = services or []
         self.controlling_faction = None or controlling_faction
+        self.state = state
         super().__init__()
 
     def __repr__(self):
-        return f"{self.station_type.title()} '{self.name}'"
+        return f"{self.station_type.value.title()} '{self.name}'"
 
     def _system_setter(self, value):
         self._system_relation.set_for_child(self, value)
@@ -221,3 +230,15 @@ class OrbitalStationModel(UniqueInstanceMixin):
         fget=_controlling_faction_getter,
         fset=_controlling_faction_setter,
     )
+
+    @property
+    def distance_to_arrival_rounded(self):
+        return (
+            int(round(self.distance_to_arrival, -2))
+            if self.distance_to_arrival is not None
+            else None
+        )
+
+    @property
+    def max_landing_pad(self):
+        return self.landing_pads_map.get(self.station_type, enums.LandingPadSizes.LARGE)

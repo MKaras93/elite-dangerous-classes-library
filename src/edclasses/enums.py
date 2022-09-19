@@ -16,6 +16,18 @@ class StationType(Enum):
     # MEGASHIP = "mega ship" # TODO: handle megaships
 
 
+class LandingPadSizes(Enum):
+    SMALL = 1
+    MEDIUM = 2
+    LARGE = 3
+
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
+
+
 class StationService(Enum):
     PIONEERSUPPLIES = "pioneersupplies"
     SHOP = "shop"
@@ -51,3 +63,26 @@ class StationService(Enum):
     REARM = "rearm"
     BARTENDER = "bartender"
     VISTAGENOMICS = "vistagenomics"
+    ON_DOCK_MISSION = "ondockmission"
+
+
+class State(Enum):
+    EXPANSION = "expansion"
+    BOOM = "boom"
+    CIVIL_LIBERTY = "civilliberty"
+    WAR = "war"
+    PIRATE_ATTACK = "pirateattack"
+    PUBLIC_HOLIDAY = "publicholiday"
+    OUTBREAK = "outbreak"
+    ELECTION = "election"
+    INVESTMENT = "investment"
+    INFRASTRUCTURE_FAILURE = "infrastructurefailure"
+    CIVIL_UNREST = "civilunrest"
+    BUST = "bust"
+    DROUGHT = "drought"
+    TERRORISM = "terrorism"
+    CIVIL_WAR = "civilwar"
+    FAMINE = "famine"
+    BLIGHT = "blight"
+    LOCKDOWN = "lockdown"
+    RETREAT = "retreat"

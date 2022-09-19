@@ -20,6 +20,7 @@ class TestClassesRelations:
         system = station.system
         assert station.system == system
         assert system.stations == [station]
+        assert station.station_type == enums.StationType.STATION
 
     def test_station_factory(self):
         station = OrbitalStationFactory()

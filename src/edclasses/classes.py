@@ -27,6 +27,9 @@ class FactionBranch(AutoRefreshMixin, FactionBranchModel):
     refreshed_fields = (
         "influence",
         "stations",
+        "active_states",
+        "pending_states",
+        "recovering_states",
     )
 
 
@@ -36,4 +39,5 @@ class OrbitalStation(AutoRefreshMixin, OrbitalStationModel):
         "controlling_faction",
         "distance_to_arrival",
         "services",
+        "state",
     )
